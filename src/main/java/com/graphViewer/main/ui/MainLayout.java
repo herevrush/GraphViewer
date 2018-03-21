@@ -28,7 +28,6 @@ public class MainLayout {
     private Button loadEdgesBtn;
     private Button loadbtn;
     private Frame graphFrame;
-    private ViewPanel graphStreamView;
     private ScrolledComposite scrolledComponent;
     private Button resetBtn;
     private Button zoomInBtn;
@@ -38,23 +37,21 @@ public class MainLayout {
     public MainLayout(Display display){
         this.display = display;
         this.shell = new Shell(display);
-//        org.eclipse.swt.graphics.Color red = display.getSystemColor(SWT.COLOR_RED);
-//        Color blue = display.getSystemColor(SWT.COLOR_BLUE);
         init();
         Monitor primary = display.getPrimaryMonitor();
 
-        /** get the size of the screen */
+        /* get the size of the screen */
         org.eclipse.swt.graphics.Rectangle bounds = primary.getBounds();
 
 
-        /** get the size of the window */
+        /* get the size of the window */
         Rectangle rect = shell.getBounds();
 
-        /** calculate the centre */
+        /* calculate the centre */
         int x = bounds.x + (bounds.width - rect.width) / 2;
         int y = bounds.y + (bounds.height - rect.height) / 2;
 
-        /** set the new location */
+        /* set the new location */
         shell.setLocation(x, y);
 
 //        sc1.pack();
@@ -69,18 +66,18 @@ public class MainLayout {
     public void showUI(){
         Monitor primary = display.getPrimaryMonitor();
 
-        /** get the size of the screen */
+        /* get the size of the screen */
         org.eclipse.swt.graphics.Rectangle bounds = primary.getBounds();
 
 
-        /** get the size of the window */
+        /* get the size of the window */
         Rectangle rect = shell.getBounds();
 
-        /** calculate the centre */
+        /* calculate the centre */
         int x = bounds.x + (bounds.width - rect.width) / 2;
         int y = bounds.y + (bounds.height - rect.height) / 2;
 
-        /** set the new location */
+        /* set the new location */
         shell.setLocation(x, y);
 
         shell.setSize( bounds.width-100, bounds.height-100);
@@ -151,8 +148,6 @@ public class MainLayout {
 
     private void initGraphUI(){
         scrolledComponent= new ScrolledComposite(shell, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER );
-//        sc1.set
-//        GridLayout layout1 = new GridLayout();
         RowLayout rowLayout = new RowLayout();
         rowLayout.wrap = false;
         rowLayout.pack = false;
@@ -164,15 +159,15 @@ public class MainLayout {
         rowLayout.marginBottom = 5;
         rowLayout.spacing = 0;
         scrolledComponent.setLayout(rowLayout);
-//        sc1.setLayout(layout1);
         scrolledComponent.setExpandHorizontal(true);
         scrolledComponent.setExpandVertical(true);
         org.eclipse.swt.widgets.Composite graphComposite = new Composite(scrolledComponent, SWT.NO_BACKGROUND | SWT.EMBEDDED);
-//        graphComposite.setLayout(layout1);
         scrolledComponent.setContent(graphComposite);
         try {
             System.setProperty("sun.awt.noerasebackground","true");
-        } catch (NoSuchMethodError error) {}
+        } catch (NoSuchMethodError error) {
+            LOGGER.severe(" Error in MainLayout::initGraph  - " + error.getLocalizedMessage());
+        }
 
         graphFrame = SWT_AWT.new_Frame(graphComposite);
     }
