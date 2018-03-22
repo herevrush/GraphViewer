@@ -3,21 +3,27 @@
  */
 package com.graphViewer.main.ui;
 
+import com.graphViewer.main.core.GraphController;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Label;
 import org.graphstream.ui.swingViewer.ViewPanel;
 
 import java.awt.*;
 import java.awt.Event;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.logging.Logger;
 
 public class MainLayout {
@@ -32,9 +38,13 @@ public class MainLayout {
     private Button resetBtn;
     private Button zoomInBtn;
     private Button zoomOutBtn;
-
-
-    public MainLayout(Display display){
+    private ProgressBar progressBar;
+    private GraphController graphController;
+    private Label progressLabel;
+    private Label nodesLabel;
+    private Label edgesLabel;
+    public MainLayout(Display display, GraphController graphController){
+        this.graphController = graphController;
         this.display = display;
         this.shell = new Shell(display);
         init();
@@ -103,22 +113,54 @@ public class MainLayout {
         shell.setLayout(gLayout);
         initButtonBar();
         initGraphUI();
+        initProgressBar();
     }
 
     private void initButtonBar(){
         final org.eclipse.swt.widgets.Composite btnComposite = new org.eclipse.swt.widgets.Composite(shell, SWT.NONE);
-        btnComposite.setLayout(new GridLayout(8,true));
+        btnComposite.setLayout(new GridLayout(8,false));
 
         loadNodesBtn = new Button(btnComposite, SWT.PUSH);
         loadNodesBtn.setText("Load Nodes");
         loadNodesBtn.addListener(SWT.Selection, event -> {
-            System.out.println( "Button was selected" );
+//            graphController.addNodes();
+            String fd = openfileDialog();
+            System.out.println(fd);
+
+            if(fd != null){
+                Display.getDefault().asyncExec(new Runnable(){
+                    public void run(){
+                        updateProgress(" Loading Nodes....", 60);
+                        int nodes = graphController.addNodes(fd);
+                        System.out.println("nodes = " + String.valueOf(nodes));
+                        nodesLabel.setText( String.valueOf(nodes));
+                        stopProgress(200);
+                    }
+                });
+
+            }
         });
 
         loadEdgesBtn = new Button(btnComposite, SWT.PUSH);
         loadEdgesBtn.setText("Load Edges");
         loadEdgesBtn.addListener(SWT.Selection, event -> {
-            System.out.println( "Button was selected" );
+            String fd = openfileDialog();
+            System.out.println(fd);
+
+            if(fd != null){
+                Display.getDefault().asyncExec(new Runnable(){
+                    public void run(){
+                        updateProgress(" Loading Edges....", 60);
+                        int edges = graphController.addEdges(fd);
+                        System.out.println("edges " + edges);
+                        edgesLabel.setText( String.valueOf(edges));
+                        stopProgress(200);
+                    }
+
+                });
+
+            }
+
         });
 
         loadbtn = new Button(btnComposite, SWT.PUSH);
@@ -144,23 +186,26 @@ public class MainLayout {
         zoomOutBtn.addListener(SWT.Selection, event -> {
             System.out.println( "Button was selected" );
         });
+
+        Composite nodesComposite = new Composite(btnComposite, SWT.BORDER);
+        nodesComposite.setLayout(new GridLayout(2,true));
+        Label label = new Label(nodesComposite, SWT.NONE);
+        label.setText( " Nodes: ");
+        nodesLabel = new Label(nodesComposite, SWT.NONE);
+        nodesLabel.setText( "            ");
+
+        Composite edgesComposite = new Composite(btnComposite, SWT.BORDER);
+        edgesComposite.setLayout(new GridLayout(2,true));
+        label = new Label(edgesComposite, SWT.NONE);
+        label.setText( " Edges: ");
+        edgesLabel = new Label(edgesComposite, SWT.FILL);
+        edgesLabel.setText( "              ");
     }
 
     private void initGraphUI(){
         scrolledComponent= new ScrolledComposite(shell, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER );
-        RowLayout rowLayout = new RowLayout();
-        rowLayout.wrap = false;
-        rowLayout.pack = false;
-        rowLayout.justify = true;
-        rowLayout.type = SWT.VERTICAL;
-        rowLayout.marginLeft = 5;
-        rowLayout.marginTop = 5;
-        rowLayout.marginRight = 5;
-        rowLayout.marginBottom = 5;
-        rowLayout.spacing = 0;
-        scrolledComponent.setLayout(rowLayout);
-        scrolledComponent.setExpandHorizontal(true);
-        scrolledComponent.setExpandVertical(true);
+        GridData gridData = new GridData(GridData.FILL, GridData.FILL, true, true);
+        scrolledComponent.setLayoutData(gridData);
         org.eclipse.swt.widgets.Composite graphComposite = new Composite(scrolledComponent, SWT.NO_BACKGROUND | SWT.EMBEDDED);
         scrolledComponent.setContent(graphComposite);
         try {
@@ -171,4 +216,54 @@ public class MainLayout {
 
         graphFrame = SWT_AWT.new_Frame(graphComposite);
     }
+
+    private void initProgressBar(){
+        Composite progressComposite = new Composite(shell, SWT.BORDER);
+        GridData gridData = new GridData(GridData.FILL, GridData.END,false,false);
+        progressComposite.setLayout(new GridLayout(1,false));
+        progressComposite.setLayoutData(gridData);
+        progressLabel = new Label(progressComposite, SWT.NONE);
+        gridData = new GridData(GridData.FILL, GridData.FILL,true,false);
+        progressLabel.setLayoutData(gridData);
+        progressBar = new ProgressBar(progressComposite, SWT.INDETERMINATE);
+        gridData = new GridData(GridData.FILL, GridData.FILL,true,true);
+        progressBar.setLayoutData(gridData);
+        progressLabel.setText(" ...");
+        progressBar.setVisible(false);
+//        progressBar.setState(SWT.SMOOTH);
+//        progressBar.setMinimum(30);
+    }
+    private String openfileDialog(){
+        FileDialog fileDialog = new FileDialog(shell, SWT.OPEN);
+        String[] filterExt = { "*.csv"};
+        fileDialog.setFilterExtensions(filterExt);
+//        fileDialog.setFilterPath(System.getProperty("user.home"));
+        Collection files = new ArrayList();
+        return fileDialog.open();
+    }
+
+    private void updateProgress(String message, int i){
+        progressBar.setVisible(true);
+
+        progressLabel.setText(message);
+        progressBar.setSelection(i);
+        progressBar.setMaximum(100);
+
+    }
+
+    private void stopProgress(int wait){
+        if(wait > 0){
+            Display.getDefault().timerExec(wait, new Runnable() {
+                @Override
+                public void run() {
+                    progressBar.setVisible(false);
+                            progressLabel.setText("...");
+                }
+            });
+        }
+
+
+
+    }
+
 }

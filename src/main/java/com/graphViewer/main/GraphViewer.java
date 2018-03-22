@@ -1,5 +1,6 @@
 package com.graphViewer.main;
 
+import com.graphViewer.main.core.GraphController;
 import com.graphViewer.main.ui.MainLayout;
 
 import org.eclipse.swt.widgets.*;
@@ -11,12 +12,14 @@ public class GraphViewer {
 
     private MainLayout mainLayout;
 
-    private void createAndShowGUI() {
 
+
+    private void createAndShowGUI() {
+        GraphController graphController = new GraphController();
         Display display = new Display();
         //Use the Java look and feel.
         display.syncExec(() -> {
-            mainLayout = new MainLayout(display);
+            mainLayout = new MainLayout(display,graphController);
             mainLayout.showUI();
         });
 

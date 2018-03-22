@@ -25,7 +25,7 @@ public abstract class ElementImpl implements Element {
 
     @Override
     public String getName() {
-        return null;
+        return name;
     }
 
     @Override
