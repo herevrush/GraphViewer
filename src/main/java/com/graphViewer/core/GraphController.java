@@ -22,7 +22,7 @@ public class GraphController implements ViewerListener, MouseInputListener {
     private GraphData graphData;
     private Viewer graphstreamViewer;
     private ViewerPipe viewerPipe;
-    public static  String styleSheet = "graph { fill-color: #D0CDFF; }"
+    private static  String styleSheet = "graph { fill-color: #D0CDFF; }"
             + "node { size: 3px; fill-mode: dyn-plain; " +
             "fill-color: #BB3B13; text-color: #BB3B13; text-alignment: under; text-background-mode: rounded-box; " +
             "text-background-color: #565656; text-padding: 1px, 4px; text-offset: 0px, 5px; }"
@@ -64,6 +64,7 @@ public class GraphController implements ViewerListener, MouseInputListener {
             if(graphData.getNodes() != null){
                 for (GraphNode n:graphData.getNodes().values()) {
                     Node node = graph.addNode(n.getName());
+                    node.setAttribute("ui.label",n.getName());
 //                    if(n.getProperties() != null &&  n.getProperties().size() > 0){
 //                        n.getProperties().forEach(( k,v) ->{
 //                            node.setAttribute((String)k,(String)v);
@@ -75,6 +76,7 @@ public class GraphController implements ViewerListener, MouseInputListener {
             if(graphData.getEdges() != null){
                 for (GraphEdge graphEdge:graphData.getEdges().values()) {
                     Edge edge = graph.addEdge(graphEdge.getName(),graphEdge.getSource().getName(), graphEdge.getTarget().getName());
+                    edge.setAttribute("ui.label",graphEdge.getName());
 //                    if(graphEdge.getProperties() != null &&  graphEdge.getProperties().size() > 0){
 //                        graphEdge.getProperties().forEach(( k,v) ->{
 //                            edge.setAttribute((String)k,(String)v);
