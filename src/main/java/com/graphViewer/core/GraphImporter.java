@@ -47,13 +47,15 @@ public class GraphImporter {
 
             // skip the header of the csv
             List<String> properties = new ArrayList<>(Arrays.asList(br.readLine().split(COMMA)));
-
+            boolean isFirst = true;
             br.lines().skip(1).forEach( (line) -> {
                 String[] p = line.split(COMMA);// a CSV has comma separated lines
 
                 GraphNode node = new GraphNode(p[0]);
 //                System.out.println("adding " + node.getName());
-
+                if(data.getFirstNodeName() == null){
+                    data.setFirstNodeName(node.getName());
+                }
                 for(int i=1;i<p.length;i++){
                     node.addProperty(properties.get(i), p[i]);
                 }

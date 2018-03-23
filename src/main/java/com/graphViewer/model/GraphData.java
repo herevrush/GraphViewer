@@ -4,9 +4,30 @@ import java.util.Map;
 
 public class GraphData {
 
+    private String firstNodeName;
+
+    private String selectedNode;
+
+
     private Map<String,GraphNode> nodes;
 
     private Map<String,GraphEdge> edges;
+
+    public String getFirstNodeName() {
+        return firstNodeName;
+    }
+
+    public void setFirstNodeName(String firstNodeName) {
+        this.firstNodeName = firstNodeName;
+    }
+
+    public String getSelectedNode() {
+        return selectedNode;
+    }
+
+    public void setSelectedNode(String selectedNode) {
+        this.selectedNode = selectedNode;
+    }
 
     public Map<String,GraphEdge> getEdges() {
         return edges;
