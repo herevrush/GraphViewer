@@ -1,0 +1,38 @@
+graph {
+    fill-color: #D0CDFF;
+}
+
+node {
+    size: 4px;
+    shape: circle;
+    fill-mode: dyn-plain;
+    fill-color: #BB3B13;
+    text-color: #BB3B13;
+    text-alignment: under;
+    text-background-mode: rounded-box;
+    text-background-color: #efefef;
+    text-padding: 1px, 1px;
+    text-offset: 0px, 2px;
+}
+
+
+
+node.highlight {
+    fill-color: #ffc438, #fc9272, #de2d26;
+}
+
+node.selected {
+    fill-color: yellow;
+}
+
+edge {
+    fill-color: #141EA1;
+    text-color: #141EA1;
+    text-alignment: under;
+    arrow-size: 3px, 2px;
+    text-background-mode: rounded-box;
+    text-background-color: #f9f9f9;
+    text-padding: 2px, 2px; text-offset: 0px, 5px;
+    size-mode: dyn-size;
+    size: 1px;
+}
