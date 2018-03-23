@@ -256,7 +256,8 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.graphViewer.main.GraphViewer</mainClass>
+                            <!--<mainClass>com.graphViewer.main.GraphViewer</mainClass>-->
+                            <mainClass>com.graphViewer.swing.Start</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
