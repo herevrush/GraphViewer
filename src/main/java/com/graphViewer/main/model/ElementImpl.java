@@ -13,7 +13,7 @@ public abstract class ElementImpl implements Element {
     }
 
     @Override
-    public Map getProperties() {
+    public Map<String,String> getProperties() {
         return properties;
     }
 

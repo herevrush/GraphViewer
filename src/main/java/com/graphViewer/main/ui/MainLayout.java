@@ -4,11 +4,15 @@
 package com.graphViewer.main.ui;
 
 import com.graphViewer.main.core.GraphController;
+import com.sun.javafx.iio.common.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -19,9 +23,14 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.graphstream.ui.swingViewer.ViewPanel;
+import org.graphstream.ui.view.Viewer;
+import org.graphstream.ui.view.ViewerPipe;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.Event;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.logging.Logger;
@@ -32,7 +41,7 @@ public class MainLayout {
     private Shell shell;
     private Button loadNodesBtn;
     private Button loadEdgesBtn;
-    private Button loadbtn;
+    private Button generateGraphBtn;
     private Frame graphFrame;
     private ScrolledComposite scrolledComponent;
     private Button resetBtn;
@@ -43,6 +52,10 @@ public class MainLayout {
     private Label progressLabel;
     private Label nodesLabel;
     private Label edgesLabel;
+    private Viewer graphStreamViewer;
+    private double zoomInPercent = 1.0;
+//    private Composite graphComposite;/
+
     public MainLayout(Display display, GraphController graphController){
         this.graphController = graphController;
         this.display = display;
@@ -65,7 +78,7 @@ public class MainLayout {
         shell.setLocation(x, y);
 
 //        sc1.pack();
-        scrolledComponent.setMinSize(bounds.width-150 , bounds.height-250 );
+//        scrolledComponent.setSize(bounds.width-150 , bounds.height-250 );
         shell.setSize( bounds.width-100, bounds.height-100);
     }
 
@@ -106,11 +119,13 @@ public class MainLayout {
 
         display.dispose();
     }
+
+    private void closeShell(){
+//        graphStreamView.get
+    }
     private void init(){
 
-        org.eclipse.swt.layout.GridLayout gLayout = new org.eclipse.swt.layout.GridLayout();
-        gLayout.numColumns = 1;
-        shell.setLayout(gLayout);
+        shell.setLayout(new GridLayout(1,true));
         initButtonBar();
         initGraphUI();
         initProgressBar();
@@ -125,14 +140,14 @@ public class MainLayout {
         loadNodesBtn.addListener(SWT.Selection, event -> {
 //            graphController.addNodes();
             String fd = openfileDialog();
-            System.out.println(fd);
-
+//            System.out.println(fd);
+//            String fd = "/home/vs/Downloads/data/papers.csv";
             if(fd != null){
                 Display.getDefault().asyncExec(new Runnable(){
                     public void run(){
                         updateProgress(" Loading Nodes....", 60);
                         int nodes = graphController.addNodes(fd);
-                        System.out.println("nodes = " + String.valueOf(nodes));
+//                        System.out.println("nodes = " + String.valueOf(nodes));
                         nodesLabel.setText( String.valueOf(nodes));
                         stopProgress(200);
                     }
@@ -145,14 +160,16 @@ public class MainLayout {
         loadEdgesBtn.setText("Load Edges");
         loadEdgesBtn.addListener(SWT.Selection, event -> {
             String fd = openfileDialog();
-            System.out.println(fd);
+//            String fd = "/home/vs/Downloads/data/paperlinks.csv";
+//            System.out.println(fd);
 
             if(fd != null){
                 Display.getDefault().asyncExec(new Runnable(){
                     public void run(){
                         updateProgress(" Loading Edges....", 60);
+
                         int edges = graphController.addEdges(fd);
-                        System.out.println("edges " + edges);
+//                        System.out.println("edges " + edges);
                         edgesLabel.setText( String.valueOf(edges));
                         stopProgress(200);
                     }
@@ -163,28 +180,92 @@ public class MainLayout {
 
         });
 
-        loadbtn = new Button(btnComposite, SWT.PUSH);
-        loadbtn.setText("Generate Graph");
-        loadbtn.addListener(SWT.Selection, event -> {
-            System.out.println( "Button was selected" );
+        generateGraphBtn = new Button(btnComposite, SWT.PUSH);
+        generateGraphBtn.setText("Generate Graph");
+        generateGraphBtn.addListener(SWT.Selection, event -> {
+
+            System.out.println(" initial zoom:" + zoomInPercent);
+            Display.getDefault().asyncExec(new Runnable(){
+                public void run(){
+                    updateProgress(" Loading Edges....", 60);
+                    graphStreamViewer = graphController.generateGraph();
+                    ViewPanel viewPanel = graphStreamViewer.getDefaultView();
+                    System.out.println(" feedback enabled " + graphStreamViewer.getGraphicGraph().feedbackXYZ());
+//                    viewPanel.setAutoscrolls(true);
+                    zoomInPercent = viewPanel.getCamera().getViewPercent();
+//                    .addKeyListener();
+//                    viewPanel.addMouseWheelListener(new MouseWheelListener() {
+//                        public void mouseWheelMoved(MouseWheelEvent e) {
+//                            if (e.getWheelRotation() == -1) {
+//                                zoomInPercent = zoomInPercent - 0.1;
+//                                if (zoomInPercent < 0.1) {
+//                                    zoomInPercent = 0.1;
+//                                }
+//                                viewPanel.getCamera().setViewPercent(zoomInPercent);
+//                            }
+//                            if (e.getWheelRotation() == 1) {
+//                                zoomInPercent = zoomInPercent + 0.1;
+//                                viewPanel.getCamera().setViewPercent(zoomInPercent);
+//                            }
+//                        }
+//                    });
+
+                    graphFrame.add(graphStreamViewer.getDefaultView());
+//
+//                   graphFrame.setSize(1200,1000);
+                    graphFrame.pack();
+                    graphFrame.setVisible(true);
+//                    Scrollbar scrollbar = new Scrollbar(Scrollbar.VERTICAL, 0, 1, 0, 255);
+
+//                    graphFrame.add(scrollbar);
+                    while(!graphStreamViewer.getGraphicGraph().feedbackXYZ()){
+                        System.out.println(" false");
+                    }
+//                        System.out.println("edges " + edges);
+                    stopProgress(200);
+                }
+
+            });
+
         });
+
 
         resetBtn = new Button(btnComposite, SWT.PUSH);
         resetBtn.setText("Reset View");
         resetBtn.addListener(SWT.Selection, event -> {
-            System.out.println( "Button was selected" );
+            graphStreamViewer.getDefaultView().getCamera().resetView();
         });
 
         zoomInBtn = new Button(btnComposite, SWT.PUSH);
-        zoomInBtn.setText("Zoom In Graph");
+        zoomInBtn.setImage(new Image(null,"images/magnifier--plus.png"));
+//        zoomInBtn.setText("Zoom In Graph");
         zoomInBtn.addListener(SWT.Selection, event -> {
-            System.out.println( "Button was selected" );
+            if(zoomInPercent < 0.10){
+                zoomInPercent = 0;
+//                    zoomInBtn.setEnabled(false);
+//                    zoomOutBtn.setEnabled(true);
+            }
+            else{
+                zoomInPercent = zoomInPercent - 0.10;
+            }
+
+            graphStreamViewer.getDefaultView().getCamera().setViewPercent(zoomInPercent);
+
         });
 
         zoomOutBtn = new Button(btnComposite, SWT.PUSH);
-        zoomOutBtn.setText("Zoom Out Graph");
+        zoomOutBtn.setImage(new Image(null,"images/magnifier--minus.png"));
+//        zoomOutBtn.setText("Zoom Out Graph");
         zoomOutBtn.addListener(SWT.Selection, event -> {
-            System.out.println( "Button was selected" );
+            if(zoomInPercent > 0.9){
+                zoomInPercent = 1;
+//                    zoomInBtn.setEnabled(false);
+//                    zoomOutBtn.setEnabled(true);
+            }
+            else{
+                zoomInPercent = zoomInPercent + 0.10;
+            }
+            graphStreamViewer.getDefaultView().getCamera().setViewPercent(zoomInPercent);
         });
 
         Composite nodesComposite = new Composite(btnComposite, SWT.BORDER);
@@ -206,7 +287,19 @@ public class MainLayout {
         scrolledComponent= new ScrolledComposite(shell, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER );
         GridData gridData = new GridData(GridData.FILL, GridData.FILL, true, true);
         scrolledComponent.setLayoutData(gridData);
-        org.eclipse.swt.widgets.Composite graphComposite = new Composite(scrolledComponent, SWT.NO_BACKGROUND | SWT.EMBEDDED);
+        scrolledComponent.setExpandHorizontal(true);
+        scrolledComponent.setExpandVertical(true);
+        System.out.println("scrolledComponent   " + scrolledComponent.getSize());
+        scrolledComponent.setSize(250,250);
+
+        scrolledComponent.setAlwaysShowScrollBars(true);
+
+        Composite graphComposite = new Composite(scrolledComponent,  SWT.NO_BACKGROUND | SWT.EMBEDDED);
+        gridData = new GridData(GridData.CENTER, GridData.CENTER, true, true);
+        graphComposite.setLayoutData(gridData);
+
+
+//        graphComposite.setLayout(new GridLayout(1, true));
         scrolledComponent.setContent(graphComposite);
         try {
             System.setProperty("sun.awt.noerasebackground","true");
@@ -214,12 +307,26 @@ public class MainLayout {
             LOGGER.severe(" Error in MainLayout::initGraph  - " + error.getLocalizedMessage());
         }
 
+
+
+//        scrolledComponent.addControlListener(new ControlAdapter() {
+//            public void controlResized(ControlEvent e) {
+//                System.out.println(" control resized " + graphComposite.getSize());
+//                Rectangle r = scrolledComponent.getClientArea();
+//                scrolledComponent.setMinSize(graphComposite.computeSize(r.width, r.height));
+//            }
+//        });
+
         graphFrame = SWT_AWT.new_Frame(graphComposite);
+        graphFrame.setVisible(false);
+
+
+
     }
 
     private void initProgressBar(){
         Composite progressComposite = new Composite(shell, SWT.BORDER);
-        GridData gridData = new GridData(GridData.FILL, GridData.END,false,false);
+        GridData gridData = new GridData(GridData.FILL, GridData.END,true,false);
         progressComposite.setLayout(new GridLayout(1,false));
         progressComposite.setLayoutData(gridData);
         progressLabel = new Label(progressComposite, SWT.NONE);
@@ -257,7 +364,7 @@ public class MainLayout {
                 @Override
                 public void run() {
                     progressBar.setVisible(false);
-                            progressLabel.setText("...");
+                    progressLabel.setText("...");
                 }
             });
         }
