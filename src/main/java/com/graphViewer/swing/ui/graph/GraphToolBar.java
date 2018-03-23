@@ -10,6 +10,7 @@ import com.graphViewer.swing.utils.StatusUtils;
 import com.graphViewer.swing.utils.UIUtils;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
@@ -45,8 +46,13 @@ public class GraphToolBar extends JToolBar {
 			String filename = UIUtils.getInstance().openFileDialog(app,event.getActionCommand());
 			if (filename != null){
 //				String fd = "/home/vs/Downloads/data/paperlinks.csv";
-				int edges = app.getGraphController().addEdges(filename);
-				StatusUtils.getInstance(app).setInfoStatus(" edges = " + app.getGraphController().getGraphData().getEdges().size());
+				if(app.getGraphController().getGraphData().getNodes() != null){
+					int edges = app.getGraphController().addEdges(filename);
+					StatusUtils.getInstance(app).setInfoStatus(" edges = " + app.getGraphController().getGraphData().getEdges().size());
+				}
+				else{
+					UIUtils.getInstance().openMessageDialog(app, " Nodes Not Found" , "Please load Graph nodes before loading edges.");
+				}
 			}
 //            String fd = "/home/vs/Downloads/data/papers.csv";
 		}, " Select Edges File");
@@ -86,6 +92,10 @@ public class GraphToolBar extends JToolBar {
 	public static JButton createNewButton(final String text,
 										  final ActionListener action, final String toolTipText) {
 		JButton button = new JButton();
+		button.setVerticalTextPosition(AbstractButton.CENTER);
+		button.setHorizontalTextPosition(AbstractButton.LEADING);
+		button.setBackground(Color.ORANGE);
+		button.setMargin(new Insets(2,2,2,2));
 		button.setText(text);
 		button.setToolTipText(toolTipText);
 		button.addActionListener(action);
