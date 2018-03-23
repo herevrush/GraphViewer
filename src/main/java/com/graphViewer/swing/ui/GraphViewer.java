@@ -2,11 +2,10 @@ package com.graphViewer.swing.ui;
 
 
 import com.graphViewer.core.GraphController;
-import com.graphViewer.swing.ui.StatusBar;
 import com.graphViewer.swing.ui.graph.GraphPanel;
 import com.graphViewer.swing.ui.graph.GraphToolBar;
 import com.graphViewer.swing.utils.StatusUtils;
-import org.graphstream.ui.layout.Layout;
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -132,8 +131,8 @@ public class GraphViewer extends JFrame implements Observer {
         @Override
         public void windowClosing(final WindowEvent e) {
             if (JOptionPane.showConfirmDialog(e.getWindow(),
-                    "Are you sure you want to close the application?",
-                    "Exit DN/App?", JOptionPane.YES_NO_OPTION,
+                    "Are you sure you want to close the GraphViewer application?",
+                    "Graph Viewer", JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
                 System.out.println("Bye bye!");
                 e.getWindow().dispose();
