@@ -3,7 +3,8 @@
  */
 package com.graphViewer.main.ui;
 
-import com.graphViewer.main.core.GraphController;
+
+import com.graphViewer.core.GraphController;
 import com.sun.javafx.iio.common.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;

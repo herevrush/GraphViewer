@@ -1,6 +1,7 @@
 package com.graphViewer.main;
 
-import com.graphViewer.main.core.GraphController;
+
+import com.graphViewer.core.GraphController;
 import com.graphViewer.main.ui.MainLayout;
 
 import org.eclipse.swt.widgets.*;
