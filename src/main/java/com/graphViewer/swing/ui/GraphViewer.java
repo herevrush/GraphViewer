@@ -2,7 +2,11 @@ package com.graphViewer.swing.ui;
 
 
 import com.graphViewer.core.GraphController;
-import com.graphViewer.swing.events.Events;
+import com.graphViewer.swing.ui.StatusBar;
+import com.graphViewer.swing.ui.graph.GraphPanel;
+import com.graphViewer.swing.ui.graph.GraphToolBar;
+import com.graphViewer.swing.utils.StatusUtils;
+import org.graphstream.ui.layout.Layout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,12 +23,13 @@ public class GraphViewer extends JFrame implements Observer {
     /** The tool bar of the window. */
     private GraphToolBar toolBar;
     /** The main pane of the window. */
-    private Content content;
+    private GraphPanel graphPanel;
 
     private GraphController graphController;
 
     /** The status bar of the window. */
     private StatusBar statusBar;
+
 
 
     private ComponentListener windowListener = new ComponentListener() {
@@ -57,8 +62,8 @@ public class GraphViewer extends JFrame implements Observer {
         init();
     }
 
-    public Content getContent() {
-        return content;
+    public GraphPanel getGraphPanel() {
+        return graphPanel;
     }
 
     public GraphController getGraphController() {
@@ -77,7 +82,8 @@ public class GraphViewer extends JFrame implements Observer {
         setLayout(new BorderLayout());
         applyWindowSettings();
 
-        Events.setApp(this);
+
+
 
         statusBar = new StatusBar();
         add(statusBar, BorderLayout.SOUTH);
@@ -85,8 +91,12 @@ public class GraphViewer extends JFrame implements Observer {
         toolBar = new GraphToolBar(this);
         add(toolBar, BorderLayout.NORTH);
 
-        content = new Content(this);
-        add(content, BorderLayout.CENTER);
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+        add(panel, BorderLayout.CENTER);
+        graphPanel = new GraphPanel(this);
+        panel.add(graphPanel,BorderLayout.CENTER);
+
 
 
         addComponentListener(windowListener);
@@ -108,7 +118,7 @@ public class GraphViewer extends JFrame implements Observer {
     }
 
     public final void resized() {
-        Events.setEndMessage(" Size: " + this.getSize().width + " x " + this.getSize().height);
+        StatusUtils.getInstance(this).setEndMessage(" Size: " + this.getSize().width + " x " + this.getSize().height);
     }
 
 
@@ -128,6 +138,7 @@ public class GraphViewer extends JFrame implements Observer {
                 System.out.println("Bye bye!");
                 e.getWindow().dispose();
                 System.exit(0);
+
             }
 
         }

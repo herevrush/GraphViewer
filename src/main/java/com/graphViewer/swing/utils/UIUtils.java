@@ -28,8 +28,9 @@ public class UIUtils {
 
         fd.setFilenameFilter((dir, name) -> name.endsWith(".csv"));
         fd.setVisible(true);
-        String filename = fd.getDirectory() + fd.getFile();
-        if (filename != null){
+
+        if (fd.getFile()!= null){
+            String filename = fd.getDirectory() + fd.getFile();
             System.out.println("You chose " + filename);
             return filename;
         }

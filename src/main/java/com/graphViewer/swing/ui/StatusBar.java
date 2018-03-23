@@ -19,6 +19,7 @@ public class StatusBar extends JPanel {
 	 */
 	public StatusBar() {
 		setLayout(new BorderLayout());
+
 		setBorder(new BevelBorder(BevelBorder.LOWERED));
 		add(mainLabel, BorderLayout.WEST);
 		add(endLabel, BorderLayout.EAST);
