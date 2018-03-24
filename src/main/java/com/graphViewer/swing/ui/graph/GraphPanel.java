@@ -129,7 +129,8 @@ public class GraphPanel extends JSplitPane {
             ret = false;
         }
 //		visualizeGraph();
-        applyZoomLevel(5);
+        zoomLevel = 5;
+        applyZoomLevel(zoomLevel);
         return ret;
     }
 
@@ -294,7 +295,7 @@ public class GraphPanel extends JSplitPane {
         @Override
         public void mouseWheelMoved(final MouseWheelEvent e) {
             int rotation = e.getWheelRotation();
-//			System.out.println(" rotation == " + rotation);
+			System.out.println(" zoomLevel == " + zoomLevel);
             if (zoomLevel > NEWLEVEL) {
                 zoomOut();
             } else if (zoomLevel < -NEWLEVEL) {

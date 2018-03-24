@@ -6,6 +6,8 @@ node {
     size: 4px;
     shape: circle;
     fill-mode: dyn-plain;
+    text-visibility-mode:over-zoom;
+    text-visibility:6;
     fill-color: #BB3B13;
     text-color: #BB3B13;
     text-alignment: under;
@@ -23,11 +25,14 @@ node.highlight {
 
 node.selected {
     fill-color: yellow;
+    text-mode: normal;
 }
 
 edge {
     fill-color: #141EA1;
     text-color: #141EA1;
+    text-visibility-mode:over-zoom;
+    text-visibility:6;
     text-alignment: under;
     arrow-size: 3px, 2px;
     text-background-mode: rounded-box;

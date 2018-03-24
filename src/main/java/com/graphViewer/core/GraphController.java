@@ -8,6 +8,7 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
+import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.ViewerListener;
@@ -55,7 +56,7 @@ public class GraphController implements ViewerListener, MouseInputListener {
 
     public Graph createNewGraph(){
         try{
-            Graph graph = new MultiGraph("graph1");
+            Graph graph = new SingleGraph("graph1");
             graph.addAttribute("ui.stylesheet", styleSheet);
             graph.addAttribute("ui.quality");
             graph.addAttribute("ui.antialias");
@@ -76,12 +77,14 @@ public class GraphController implements ViewerListener, MouseInputListener {
             if(graphData.getEdges() != null){
                 for (GraphEdge graphEdge:graphData.getEdges().values()) {
                     Edge edge = graph.addEdge(graphEdge.getName(),graphEdge.getSource().getName(), graphEdge.getTarget().getName());
-                    edge.setAttribute("ui.label",graphEdge.getName());
-//                    if(graphEdge.getProperties() != null &&  graphEdge.getProperties().size() > 0){
-//                        graphEdge.getProperties().forEach(( k,v) ->{
+                    StringBuilder edgeProp = new StringBuilder();
+                    if(graphEdge.getProperties() != null &&  graphEdge.getProperties().size() > 0){
+                        graphEdge.getProperties().forEach(( k,v) ->{
+                            edgeProp.append(" [ " + k + " - " + v + " ] ");
 //                            edge.setAttribute((String)k,(String)v);
-//                        });
-//                    }
+                        });
+                    }
+                    edge.setAttribute("ui.label",edgeProp.toString());
                 }
 
             }
