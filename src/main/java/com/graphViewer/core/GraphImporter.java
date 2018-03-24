@@ -98,6 +98,7 @@ public class GraphImporter {
                         GraphNode target = data.getNodes().get(p[1]);
                         if(source != null && target != null){
                             String name = p[0] + "-" + p[1];
+//                            System.out.println(" adding edge" + name);
                             GraphEdge edge = edges.get(name);
                             if(edge == null){
                                 edge = new GraphEdge(name);

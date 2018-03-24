@@ -54,14 +54,8 @@ public class GraphController implements ViewerListener, MouseInputListener {
         return graphData;
     }
 
-    public Graph createNewGraph(){
+    public Graph generateGraph(Graph graph){
         try{
-            Graph graph = new SingleGraph("graph1");
-            graph.addAttribute("ui.stylesheet", styleSheet);
-            graph.addAttribute("ui.quality");
-            graph.addAttribute("ui.antialias");
-            graph.setAutoCreate(true);
-            graph.setStrict(false);
             if(graphData.getNodes() != null){
                 for (GraphNode n:graphData.getNodes().values()) {
                     Node node = graph.addNode(n.getName());
@@ -95,7 +89,25 @@ public class GraphController implements ViewerListener, MouseInputListener {
             return graph;
         }
         catch(Exception e){
+            System.out.println(" could not generateGraph");
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Graph createNewGraph(){
+        try{
+            Graph graph = new MultiGraph("graph1");
+            graph.addAttribute("ui.stylesheet", styleSheet);
+            graph.addAttribute("ui.quality");
+            graph.addAttribute("ui.antialias");
+            graph.setAutoCreate(true);
+            graph.setStrict(true);
+            return graph;
+        }
+        catch(Exception e){
             System.out.println(" could not create new graph");
+            e.printStackTrace();
         }
         return null;
     }
@@ -108,75 +120,75 @@ public class GraphController implements ViewerListener, MouseInputListener {
 
     }
 
-    public Viewer generateGraph(){
-        try{
-            Graph graph = createNewGraph();
-            if(graph != null){
-                graphstreamViewer = new Viewer(graph,
-                        Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
-                graphstreamViewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
-                graphstreamViewer.enableAutoLayout();
-            }
+//    public Viewer generateGraph(Graph graph){
+//        try{
+//            Graph graph = createNewGraph();
+//            if(graph != null){
+//                graphstreamViewer = new Viewer(graph,
+//                        Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
+//                graphstreamViewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
+//                graphstreamViewer.enableAutoLayout();
+//            }
+//
+//
+////            Viewer viewer = graph.display();
+//
+//
+//
+//
+//
+//            ViewPanel viewPanel= graphstreamViewer.addDefaultView(false);
+//
+//            viewPanel.addMouseListener(this);
+//            System.out.println("size is :: " + viewPanel.getSize());
+//            viewPanel.setSize(1200, 1000);
+//            viewPanel.getCamera().setViewCenter(0,0,0);
+//
+//            viewerPipe = graphstreamViewer.newViewerPipe();
+//            viewerPipe.addViewerListener(this);
+//
+////            graphstreamView.getCamera().setViewPercent(0.5);
+//            viewerPipe.addSink(graph);
+//
+//            System.out.println(graphstreamViewer.getView("graph1"));
+////            viewerPipe.pump();
+//
+//
+////            graphstreamView.getCamera().setViewPercent(0.5);
+////            Panel panel = new Panel(new BorderLayout()) {
+////                public void update(java.awt.Graphics g) {
+////                    /* Do not erase the background */
+////                    paint(g);
+////                }
+////                @Override
+////                public Dimension getPreferredSize() {
+////                    return new Dimension(1200, 1000);
+////                }
+////            };
+//
+////            JRootPane root = new JRootPane();
+//
+////            root.setSize(1200, 1000);
+////            panel.add(root);
+////            panel.setBackground(Color.cyan);
+////            panel.setSize(1200, 1000);
+////            root.getContentPane().add(graphstreamView);
+//
+////            frame.add(graphstreamView);
+////            frame.setSize(1200,1000);
+////            frame.pack();
+////            frame.setVisible(true);
+//            return graphstreamViewer;
+//        }
+//        catch (Exception e){
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 
-
-//            Viewer viewer = graph.display();
-
-
-
-
-
-            ViewPanel viewPanel= graphstreamViewer.addDefaultView(false);
-
-            viewPanel.addMouseListener(this);
-            System.out.println("size is :: " + viewPanel.getSize());;
-            viewPanel.setSize(1200, 1000);
-            viewPanel.getCamera().setViewCenter(0,0,0);
-
-            viewerPipe = graphstreamViewer.newViewerPipe();
-            viewerPipe.addViewerListener(this);
-
-//            graphstreamView.getCamera().setViewPercent(0.5);
-            viewerPipe.addSink(graph);
-
-            System.out.println(graphstreamViewer.getView("graph1"));
-//            viewerPipe.pump();
-
-
-//            graphstreamView.getCamera().setViewPercent(0.5);
-//            Panel panel = new Panel(new BorderLayout()) {
-//                public void update(java.awt.Graphics g) {
-//                    /* Do not erase the background */
-//                    paint(g);
-//                }
-//                @Override
-//                public Dimension getPreferredSize() {
-//                    return new Dimension(1200, 1000);
-//                }
-//            };
-
-//            JRootPane root = new JRootPane();
-
-//            root.setSize(1200, 1000);
-//            panel.add(root);
-//            panel.setBackground(Color.cyan);
-//            panel.setSize(1200, 1000);
-//            root.getContentPane().add(graphstreamView);
-
-//            frame.add(graphstreamView);
-//            frame.setSize(1200,1000);
-//            frame.pack();
-//            frame.setVisible(true);
-            return graphstreamViewer;
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public Viewer getGraphstreamViewer() {
-        return graphstreamViewer;
-    }
+//    public Viewer getGraphstreamViewer() {
+//        return graphstreamViewer;
+//    }
 
 
 
