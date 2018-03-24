@@ -35,11 +35,11 @@
             <!--<version>3.3.0-v3346</version>-->
         <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.eclipse.swt</groupId>
-            <artifactId>${swt.artifactId}</artifactId>
-            <version>${swt.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.eclipse.swt</groupId>-->
+            <!--<artifactId>${swt.artifactId}</artifactId>-->
+            <!--<version>${swt.version}</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.eclipse.swt</groupId>
             <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
