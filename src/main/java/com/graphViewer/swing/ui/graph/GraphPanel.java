@@ -350,6 +350,7 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
 
                 //Node Details
                 JScrollPane detailsPane = new JScrollPane();
+//                detailsPane.setLayout(new ScrollPaneLayout());
                 detailsPane.setName(" Node Details");
                 JList nodeDetailsList = new JList();
                 final DefaultListModel model = new DefaultListModel();
@@ -359,10 +360,11 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
                     model.addElement(key + " : " + value);
                 });
                 detailsPane.add(nodeDetailsList);
-                infoPane.add(detailsPane);
+                tabs.add(detailsPane);
 
                 //incoming edges
                 JScrollPane edgesPane = new JScrollPane();
+//                edgesPane.setLayout(new ScrollPaneLayout());
                 edgesPane.setName(" Edge Details");
                 nodeDetailsList = new JList();
                 DefaultListModel edgeModel = new DefaultListModel();
@@ -375,7 +377,7 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
 
                 });
                 edgesPane.add(nodeDetailsList);
-                infoPane.add(edgesPane);
+                tabs.add(edgesPane);
 
 
 
@@ -417,7 +419,6 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
         Node node = graph.getNode(s);
         if(node != null){
             node.removeAttribute("layout.frozen");
-
         }
     }
 
