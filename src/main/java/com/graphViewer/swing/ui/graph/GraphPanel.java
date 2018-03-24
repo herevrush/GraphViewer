@@ -11,6 +11,7 @@ import com.graphViewer.swing.ui.ProgressDialog;
 import com.graphViewer.swing.utils.StatusUtils;
 import org.graphstream.algorithm.generator.DorogovtsevMendesGenerator;
 import org.graphstream.algorithm.generator.Generator;
+import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
@@ -27,6 +28,8 @@ import org.graphstream.ui.view.ViewerListener;
 import org.graphstream.ui.view.ViewerPipe;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.SoftBevelBorder;
 import javax.swing.event.MouseInputListener;
 import javax.swing.table.TableColumn;
 import java.awt.*;
@@ -58,7 +61,11 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
 
     private ViewerPipe viewerPipe;
 
-    private JPanel infoPane;
+    private JPanel nodeDetailsPanel;
+
+    private JPanel inEdgePanel;
+
+    private JPanel outEdgePanel;
 
 //    private ScrollListener scroll;
 
@@ -73,18 +80,46 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
         graphPane = new JScrollPane();
         graphPane.setMinimumSize(new Dimension(2, 2));
 
-        infoPane = new JPanel(new BorderLayout());
+        JPanel infoPane = new JPanel(new BorderLayout());
+        initInfoPane(infoPane);
 
 
         setTopComponent(graphPane);
         setBottomComponent(infoPane);
 
-        setDividerLocation(500);
+        setDividerLocation(450);
         setResizeWeight(1);
 
 		new GraphScrollListener(graphPane.getHorizontalScrollBar());
 		graphPane.getHorizontalScrollBar().setUnitIncrement(100);
         graphPane.getVerticalScrollBar().setUnitIncrement(100);
+
+    }
+
+    private void initInfoPane(JPanel infoPane){
+        JTabbedPane content = new JTabbedPane();
+        infoPane.add(content);
+
+//        content.setLayout(new GridLayout(1,3));
+
+        nodeDetailsPanel = new JPanel();
+        nodeDetailsPanel.setLayout(new GridLayout(10,1));
+//        nodeDetailsPanel.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
+        content.add("Node Details: " ,nodeDetailsPanel);
+
+
+        inEdgePanel = new JPanel();
+        inEdgePanel.setLayout(new GridLayout(150,1));
+//        inEdgePanel.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
+        JScrollPane pane = new JScrollPane(inEdgePanel);
+        content.add("Referred By" ,pane);
+
+
+        outEdgePanel = new JPanel();
+        outEdgePanel.setLayout(new GridLayout(100,1));
+//        outEdgePanel.setBorder(new BevelBorder(BevelBorder.RAISED));
+        pane = new JScrollPane(outEdgePanel);
+        content.add("References",pane);
 
     }
 
@@ -249,10 +284,10 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
 
         graph.addSink(layout);
         layout.addAttributeSink(graph);
-        layout.setQuality(0.9);
+        layout.setQuality(0.7);
 //        graphStreamViewer.enableAutoLayout(layout);
 //
-        ViewPanel viewPanel = new DefaultView(graphStreamViewer, Viewer.DEFAULT_VIEW_ID,
+        DefaultView viewPanel = new DefaultView(graphStreamViewer, Viewer.DEFAULT_VIEW_ID,
                 new SwingBasicGraphRenderer());
         graphStreamViewer.addView(viewPanel);
 
@@ -267,14 +302,7 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
         viewerPipe = graphStreamViewer.newViewerPipe();
         viewerPipe.addViewerListener(this);
         viewerPipe.addSink(graph);
-
-
-
-
-//
-//
-//        scroll = new ScrollListener();
-//        viewPanel.addMouseWheelListener(scroll);
+//        viewPanel.setMouseManager(new GraphMouseManager(viewerPipe));
 
         graphPane.setViewportView(viewPanel);
         graphPane.getHorizontalScrollBar().setValue(graphPane.getHorizontalScrollBar().getValue());
@@ -336,53 +364,38 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
     }
 
     private void updateInfo(Node node, GraphData graphData){
-
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                GraphNode graphNode = graphData.getNodes().get(graphData.getSelectedNode());
-                //add data to infopane
-                infoPane.setLayout(new BorderLayout());
-
-//                JTabbedPane tabs = new JTabbedPane();
-//                infoPane.add(tabs, BorderLayout.CENTER);
-
-                //Node Details
-                JList nodeDetailsList = new JList();
-                final DefaultListModel model = new DefaultListModel();
-                nodeDetailsList.setModel(model);
-                model.addElement(graphNode.getName());
-                graphNode.getProperties().forEach((key,value) ->{
-                    model.addElement(key + " : " + value);
-                });
-                JScrollPane detailsPane = new JScrollPane(nodeDetailsList);
-
-//                tabs.add(" Node Details",detailsPane);
-
-                infoPane.add(detailsPane, BorderLayout.EAST);
-                //incoming edges
-                nodeDetailsList = new JList();
-                DefaultListModel edgeModel = new DefaultListModel();
-                node.getEachEdge().forEach(edge -> {
-                    String edgeId = edge.getId();
-                    GraphEdge e = graphData.getEdges().get(edgeId);
-                    e.getProperties().forEach((key, value) -> {
-                        edgeModel.addElement(key + " : " + value);
-                    });
-
-                });
-                JScrollPane edgesPane = new JScrollPane(nodeDetailsList);
-                infoPane.add(edgesPane, BorderLayout.WEST);
-//                tabs.add(" Edge Details",edgesPane);
+        GraphNode graphNode = graphData.getNodes().get(graphData.getSelectedNode());
+        //add data to infopane
 
 
-
-
-            }
+        //Node Details
+        nodeDetailsPanel.removeAll();
+        nodeDetailsPanel.add(new JLabel(" Node : " + graphNode.getName()));
+        graphNode.getProperties().forEach((key,value) ->{
+            nodeDetailsPanel.add(new JLabel(key + " : " + value));
         });
 
-        System.out.println( " ");
+        //incoming edges
+        inEdgePanel.removeAll();
+        node.getEachEnteringEdge().forEach(edge -> {
+            getEdgeDetails(inEdgePanel, edge, graphData);
+        });
+
+        outEdgePanel.removeAll();
+        node.getEachLeavingEdge().forEach(edge -> {
+            getEdgeDetails(outEdgePanel, edge, graphData);
+
+        });
+//        SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//
+////                outEdgePanel.setSize(300,200);
+//            }
+//        });
+
     }
+
     /**
      * Lets you zoom out one level back.
      */
@@ -390,6 +403,16 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
         applyZoomLevel(zoomLevel - 1);
     }
 
+    private void getEdgeDetails(JPanel panel, Edge edge, GraphData graphData) {
+//        System.out.println( " Edge == " + edge.getId());
+        String edgeId = edge.getId();
+        GraphEdge e = graphData.getEdges().get(edgeId);
+        e.getProperties().forEach((key, value) -> {
+            panel.add (new JLabel(edge.getSourceNode().getId() + " " + key + " : " + value));
+//                        edgeModel.addElement(key + " : " + value);
+//                        content.add(new JLabel(key + " : " + value));
+        });
+    }
 
     @Override
     public void viewClosed(String s) {
@@ -449,14 +472,14 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
 
         @Override
         public void mousePressed(MouseEvent e) {
-//        System.out.println(" mouse mousePressed");
+        System.out.println(" mouse mousePressed");
             graphStreamViewer.getDefaultView().requestFocus();
             viewerPipe.pump();
         }
 
         @Override
         public void mouseReleased(MouseEvent e) {
-//            System.out.println(" mouse released");
+            System.out.println(" mouse released");
             graphStreamViewer.getDefaultView().requestFocus();
             viewerPipe.pump();
 

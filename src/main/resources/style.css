@@ -24,14 +24,14 @@ node.highlight {
     fill-color: #ffc438, #fc9272, #de2d26;
 }
 
-node.selected {
+node:selected {
     fill-color: yellow;
     text-mode: normal;
 }
 
 edge {
     fill-color: #598edb;
-    text-color: #598edb;
+    text-color: #ffc438;
     text-mode: normal;
     text-visibility-mode:over-zoom;
     text-visibility:0.6;
