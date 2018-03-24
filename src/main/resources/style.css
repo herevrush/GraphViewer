@@ -3,12 +3,12 @@ graph {
 }
 
 node {
-    size: 4px;
+    size: 10px;
     shape: circle;
     text-mode: normal;
     fill-mode: dyn-plain;
     text-visibility-mode:over-zoom;
-    text-visibility:6;
+    text-visibility:0.5,0.6;
     fill-color: #BB3B13;
     text-color: #BB3B13;
     text-alignment: under;
@@ -30,16 +30,16 @@ node.selected {
 }
 
 edge {
-    fill-color: #141EA1;
-    text-color: #141EA1;
+    fill-color: #598edb;
+    text-color: #598edb;
     text-mode: normal;
     text-visibility-mode:over-zoom;
-    text-visibility:6;
+    text-visibility:0.6;
     text-alignment: under;
-    arrow-size: 3px, 2px;
+    arrow-size: 5px, 4px;
     text-background-mode: rounded-box;
     text-background-color: #f9f9f9;
     text-padding: 2px, 2px; text-offset: 0px, 5px;
     size-mode: dyn-size;
-    size: 1px;
+    size: 2px;
 }

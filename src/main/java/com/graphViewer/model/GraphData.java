@@ -44,4 +44,5 @@ public class GraphData {
     public void setNodes(Map<String,GraphNode> nodes) {
         this.nodes = nodes;
     }
+
 }

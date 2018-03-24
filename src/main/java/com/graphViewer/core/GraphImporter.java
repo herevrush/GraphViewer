@@ -3,6 +3,7 @@ package com.graphViewer.core;
 import com.graphViewer.model.GraphData;
 import com.graphViewer.model.GraphEdge;
 import com.graphViewer.model.GraphNode;
+import org.graphstream.ui.swingViewer.basicRenderer.SwingBasicGraphRenderer;
 
 import java.io.*;
 import java.nio.file.InvalidPathException;
@@ -121,6 +122,7 @@ public class GraphImporter {
 //                            System.out.println(" Erro " + source + " " + target);
                         }
                     });
+
                     br.close();
 
                 } catch (IOException e) {
