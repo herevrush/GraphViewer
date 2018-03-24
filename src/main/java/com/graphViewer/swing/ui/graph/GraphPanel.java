@@ -56,7 +56,7 @@ public class GraphPanel extends JSplitPane {
 
     private JPanel infoPane;
 
-    private ScrollListener scroll;
+//    private ScrollListener scroll;
 
     private int zoomLevel = 0;
 
@@ -77,8 +77,9 @@ public class GraphPanel extends JSplitPane {
         setDividerLocation(500);
         setResizeWeight(1);
 
-//		new GraphScrollListener(graphPane.getHorizontalScrollBar());
-//		graphPane.getHorizontalScrollBar().setUnitIncrement(400);
+		new GraphScrollListener(graphPane.getHorizontalScrollBar());
+		graphPane.getHorizontalScrollBar().setUnitIncrement(100);
+        graphPane.getVerticalScrollBar().setUnitIncrement(100);
 
     }
 
@@ -103,12 +104,7 @@ public class GraphPanel extends JSplitPane {
 
     }
 
-    /**
-     * @param newViewSize The new view size
-     */
-    private void setViewSize(final Dimension newViewSize) {
-        this.viewSize = newViewSize;
-    }
+
 
 
     /**
@@ -134,6 +130,10 @@ public class GraphPanel extends JSplitPane {
         return ret;
     }
 
+
+    public int getZoomLevel() {
+        return zoomLevel;
+    }
 
     class Worker extends SwingWorker<Graph, Void> {
 
@@ -217,9 +217,9 @@ public class GraphPanel extends JSplitPane {
 //
 //
 //		}
-
-        scroll = new ScrollListener();
-        viewPanel.addMouseWheelListener(scroll);
+//
+//        scroll = new ScrollListener();
+//        viewPanel.addMouseWheelListener(scroll);
 
         graphPane.setViewportView(viewPanel);
         graphPane.getHorizontalScrollBar().setValue(graphPane.getHorizontalScrollBar().getValue());
