@@ -65,26 +65,30 @@ public class GraphController implements ViewerListener, MouseInputListener {
             if(graphData.getNodes() != null){
                 for (GraphNode n:graphData.getNodes().values()) {
                     Node node = graph.addNode(n.getName());
-                    node.setAttribute("ui.label",n.getName());
-//                    if(n.getProperties() != null &&  n.getProperties().size() > 0){
-//                        n.getProperties().forEach(( k,v) ->{
-//                            node.setAttribute((String)k,(String)v);
-//                        });
-//                    }
+                    if(node != null){
+                        node.setAttribute("ui.label",n.getName());
+                    }
                 }
             }
 
             if(graphData.getEdges() != null){
                 for (GraphEdge graphEdge:graphData.getEdges().values()) {
                     Edge edge = graph.addEdge(graphEdge.getName(),graphEdge.getSource().getName(), graphEdge.getTarget().getName());
+                    if(edge != null){
                     StringBuilder edgeProp = new StringBuilder();
                     if(graphEdge.getProperties() != null &&  graphEdge.getProperties().size() > 0){
                         graphEdge.getProperties().forEach(( k,v) ->{
-                            edgeProp.append(" [ " + k + " - " + v + " ] ");
+//                            System.out.println(edgeProp.toString());
+                            edgeProp.append(v);
 //                            edge.setAttribute((String)k,(String)v);
                         });
                     }
-                    edge.setAttribute("ui.label",edgeProp.toString());
+//                    System.out.println(edgeProp.toString());
+//                        edge.setAttribute("ui.label",edgeProp.toString());
+                    }
+                    else{
+                        System.out.println(graphEdge.getName());
+                    }
                 }
 
             }

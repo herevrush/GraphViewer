@@ -23,6 +23,9 @@ public class StatusBar extends JPanel {
 		setBorder(new BevelBorder(BevelBorder.LOWERED));
 		add(mainLabel, BorderLayout.WEST);
 		add(endLabel, BorderLayout.EAST);
+		Font font = new Font("Verdana", Font.BOLD, 15);
+		mainLabel.setFont(font);
+		mainLabel.setForeground(Color.BLUE);
 		endLabel.setText("Welcome.");
 	}
 
@@ -31,6 +34,11 @@ public class StatusBar extends JPanel {
 
 	 */
 	public final void setMessage(final String message, final StatusMessage type) {
+		if(type == StatusMessage.ERROR){
+			Font font = new Font("Verdana", Font.BOLD, 20);
+			mainLabel.setFont(font);
+			mainLabel.setForeground(Color.RED);
+		}
 		mainLabel.setText(type.getPrefix() + message);
 	}
 
