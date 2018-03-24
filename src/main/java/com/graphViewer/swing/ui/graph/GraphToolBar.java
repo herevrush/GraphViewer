@@ -73,6 +73,8 @@ public class GraphToolBar extends JToolBar {
 				app.getGraphPanel().loadGraph();
 				int zoomLevel= app.getGraphPanel().getZoomLevel();
 				zoomLevelLabel.setText(String.valueOf(zoomLevel));
+				StatusUtils.getInstance(app).setInfoStatus(" Generating Graph ........ " );
+
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
