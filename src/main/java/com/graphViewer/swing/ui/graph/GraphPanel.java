@@ -227,8 +227,6 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
                         }
                     });
 //                }
-
-
 //                this.done();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -313,6 +311,7 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
 
 
     private void setSelectedNode(final Node newSelectedNode) {
+
         GraphData graphData = app.getGraphController().getGraphData();
         System.out.println( "Selected Node : " +  newSelectedNode.getId());
         if(newSelectedNode != null) {
@@ -345,13 +344,10 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
                 //add data to infopane
                 infoPane.setLayout(new BorderLayout());
 
-                JTabbedPane tabs = new JTabbedPane();
-                infoPane.add(tabs);
+//                JTabbedPane tabs = new JTabbedPane();
+//                infoPane.add(tabs, BorderLayout.CENTER);
 
                 //Node Details
-                JScrollPane detailsPane = new JScrollPane();
-//                detailsPane.setLayout(new ScrollPaneLayout());
-                detailsPane.setName(" Node Details");
                 JList nodeDetailsList = new JList();
                 final DefaultListModel model = new DefaultListModel();
                 nodeDetailsList.setModel(model);
@@ -359,13 +355,12 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
                 graphNode.getProperties().forEach((key,value) ->{
                     model.addElement(key + " : " + value);
                 });
-                detailsPane.add(nodeDetailsList);
-                tabs.add(detailsPane);
+                JScrollPane detailsPane = new JScrollPane(nodeDetailsList);
 
+//                tabs.add(" Node Details",detailsPane);
+
+                infoPane.add(detailsPane, BorderLayout.EAST);
                 //incoming edges
-                JScrollPane edgesPane = new JScrollPane();
-//                edgesPane.setLayout(new ScrollPaneLayout());
-                edgesPane.setName(" Edge Details");
                 nodeDetailsList = new JList();
                 DefaultListModel edgeModel = new DefaultListModel();
                 node.getEachEdge().forEach(edge -> {
@@ -376,8 +371,9 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
                     });
 
                 });
-                edgesPane.add(nodeDetailsList);
-                tabs.add(edgesPane);
+                JScrollPane edgesPane = new JScrollPane(nodeDetailsList);
+                infoPane.add(edgesPane, BorderLayout.WEST);
+//                tabs.add(" Edge Details",edgesPane);
 
 
 
