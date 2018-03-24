@@ -28,10 +28,11 @@ public class ProgressDialog extends JDialog {
 	public ProgressDialog(final Frame owner, final String title,
                           final boolean modal) {
 		super(owner, title, modal);
+		setDefaultCloseOperation(ProgressDialog.DISPOSE_ON_CLOSE);
 		setLocationRelativeTo(owner);
 		setSize(SIZE);
-		setBackground(Color.ORANGE);
 		setResizable(false);
+
 		setLayout(new GridBagLayout());
 		/* The progress bar. */
 		JProgressBar jProgressBar = new JProgressBar();
@@ -46,12 +47,16 @@ public class ProgressDialog extends JDialog {
 	 */
 	public void start() {
 		setVisible(true);
+
+
 	}
 
 	/**
 	 * Hides and disposes the progress dialog.
 	 */
 	public final void end() {
+
+//		setVisible(false);
 		dispose();
 	}
 

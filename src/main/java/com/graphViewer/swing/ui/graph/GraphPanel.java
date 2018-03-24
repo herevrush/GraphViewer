@@ -348,7 +348,7 @@ public class GraphPanel extends JSplitPane {
 
     }
 
-    class MouseManager extends DefaultMouseManager{
+    class MouseListener extends DefaultMouseManager{
 
     }
 }
