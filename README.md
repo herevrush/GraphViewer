@@ -11,3 +11,10 @@ cd GraphViewer
 mvn install
 
 java -jar target/GraphViewer-1.0-SNAPSHOT-jar-with-dependencies.jar 
+
+
+Prerequisites :-
+
+Oracle Java 8
+
+Maven
