@@ -12,6 +12,10 @@ mvn install
 
 java -jar target/GraphViewer-1.0-SNAPSHOT-jar-with-dependencies.jar 
 
+On Linux to use OpenGL use the following command
+
+java -jar  -Dsun.java2d.opengl=True  target/GraphViewer-1.0-SNAPSHOT-jar-with-dependencies.jar
+
 ![Alt text](images/screen.png?raw=true "GraphViwer Screenshot")
 
 
