@@ -123,7 +123,7 @@ public class GraphPanel extends JSplitPane  {
         boolean ret = true;
         zoomLevel = 6;
 
-        app.getStatusBar().showProgressBar();
+//        app.getStatusBar().showProgressBar();
         CreateGraphWorker worker = new CreateGraphWorker(graphController);
         try {
             worker.execute();
@@ -131,7 +131,7 @@ public class GraphPanel extends JSplitPane  {
         } catch (Exception e1) {
             ret = false;
         }
-        app.getStatusBar().hideProgressBar();
+//        app.getStatusBar().hideProgressBar();
         return ret;
     }
 
@@ -151,10 +151,11 @@ public class GraphPanel extends JSplitPane  {
             this.addPropertyChangeListener(evt -> {
                 if (evt.getPropertyName().equals("state")) {
                     if (evt.getNewValue() == StateValue.DONE) {
-                        app.getStatusBar().hideProgressBar();
+//                        app.getStatusBar().hideProgressBar();
+
                     }
                 } else if (evt.getPropertyName().equals("progress")) {
-                    app.getStatusBar().showProgressBar();
+//                    app.getToolBar().showProgressBar();
                 }
             });
 
@@ -163,7 +164,6 @@ public class GraphPanel extends JSplitPane  {
         @Override
         protected Void doInBackground() {
             try {
-                app.getStatusBar().showProgressBar();
                 if (newZoomLevel < 0) {
                     StatusUtils.getInstance(app).setErrorStatus("There is no zoom level further from the current level");
                 } else if (newZoomLevel > 10) {
@@ -172,8 +172,9 @@ public class GraphPanel extends JSplitPane  {
                     zoomLevel = newZoomLevel;
                     visualizeGraph();
                     StatusUtils.getInstance(app).setInfoStatus("Zoom level set to: " + zoomLevel);
+                    app.getToolBar().hideProgressBar();
                 }
-                app.getStatusBar().hideProgressBar();
+
             } catch (Exception e) {
                 e.printStackTrace();
                 StatusUtils.getInstance(app).setErrorStatus(e.getMessage());
@@ -192,10 +193,10 @@ public class GraphPanel extends JSplitPane  {
             this.addPropertyChangeListener(evt -> {
                 if (evt.getPropertyName().equals("state")) {
                     if (evt.getNewValue() == StateValue.DONE) {
-                        app.getStatusBar().hideProgressBar();
+//                        app.getStatusBar().hideProgressBar();
                     }
                 } else if (evt.getPropertyName().equals("progress")) {
-                    app.getStatusBar().showProgressBar();
+//                    app.getToolBar().showProgressBar();
                 }
             });
 
@@ -213,12 +214,14 @@ public class GraphPanel extends JSplitPane  {
 
                         try {
                             graphController.getLayout().compute();
+                            Thread.sleep(10000);
+                            app.getToolBar().hideProgressBar();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     });
 //                }
-                app.getStatusBar().hideProgressBar();
+
             } catch (Exception e) {
                 e.printStackTrace();
                 StatusUtils.getInstance(app).setErrorStatus(e.getMessage());

@@ -227,15 +227,25 @@ public class GraphController implements ViewerListener{
         @Override
         public void mousePressed(MouseEvent e) {
             System.out.println(" mouse mousePressed");
-            graphStreamViewer.getDefaultView().requestFocus();
-            viewerPipe.pump();
+            try{
+                graphStreamViewer.getDefaultView().requestFocus();
+                viewerPipe.pump();
+            }
+            catch (Exception ex){
+//                ex.printStackTrace();
+            }
         }
 
         @Override
         public void mouseReleased(MouseEvent e) {
             System.out.println(" mouse released");
-            graphStreamViewer.getDefaultView().requestFocus();
-            viewerPipe.pump();
+            try{
+                graphStreamViewer.getDefaultView().requestFocus();
+                viewerPipe.pump();
+            }
+            catch (Exception ex){
+//                ex.printStackTrace();
+            }
 
         }
 

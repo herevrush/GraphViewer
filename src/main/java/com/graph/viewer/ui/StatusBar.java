@@ -13,7 +13,9 @@ public class StatusBar extends JPanel {
 
 	private JLabel mainLabel = new JLabel();
 	private JLabel endLabel = new JLabel();
-	JProgressBar jProgressBar;
+//	JProgressBar jProgressBar;
+
+	private JPanel content;
 	/**
 	 * Initializes the status bar.
 	 */
@@ -21,16 +23,21 @@ public class StatusBar extends JPanel {
 
 		setLayout(new BorderLayout());
 
-		JPanel content = new JPanel();
-		content.setLayout(new BorderLayout());
+		content = new JPanel();
+		content.setLayout(new GridBagLayout());
 		add(content);
 
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx=0;
+		gbc.gridy = 0;
+		gbc.weightx = 1;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
 
-		jProgressBar = new JProgressBar();
-		jProgressBar.setIndeterminate(true);
-		content.add(jProgressBar, BorderLayout.NORTH);
-		jProgressBar.setSize(500, 20);
-		jProgressBar.setVisible(false);
+//		jProgressBar = new JProgressBar();
+//		jProgressBar.setIndeterminate(true);
+//		content.add(jProgressBar, gbc);
+////		jProgressBar.setSize(500, 20);
+//		jProgressBar.setVisible(false);
 
 		JPanel statusPanel = new JPanel();
 		statusPanel.setLayout(new BorderLayout());
@@ -42,25 +49,33 @@ public class StatusBar extends JPanel {
 		mainLabel.setFont(font);
 		mainLabel.setForeground(Color.BLUE);
 		endLabel.setText("Welcome.");
+		gbc = new GridBagConstraints();
+		gbc.gridx=0;
+		gbc.gridy = 1;
+		gbc.weightx = 1;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
 
-
-		content.add(statusPanel,BorderLayout.SOUTH);
+		content.add(statusPanel,gbc);
 
 		revalidate();
 	}
 
 
-	public void showProgressBar(){
-		jProgressBar.setVisible(true);
-		repaint();
-		revalidate();
-	}
-
-	public void hideProgressBar(){
-		jProgressBar.setVisible(false);
-		repaint();
-		revalidate();
-	}
+//	public void showProgressBar(){
+////		content.add(jProgressBar, BorderLayout.NORTH);
+////		jProgressBar.setSize(500, 20);
+//		jProgressBar.setVisible(true);
+////		content.revalidate();
+////		content.repaint();
+//	}
+//
+//	public void hideProgressBar(){
+////		content.remove(jProgressBar);
+//		jProgressBar.setVisible(false);
+////		content.revalidate();
+//
+////		content.repaint();
+//	}
 
 	/**
 	 * Shows a message in the left text label.
