@@ -12,6 +12,8 @@ mvn install
 
 java -jar target/GraphViewer-1.0-SNAPSHOT-jar-with-dependencies.jar 
 
+![Alt text](images/screen.jpg?raw=true "GraphViwer Screenshot")
+
 
 Prerequisites :-
 
