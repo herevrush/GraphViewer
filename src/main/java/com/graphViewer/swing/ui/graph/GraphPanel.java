@@ -7,7 +7,6 @@ import com.graphViewer.model.GraphData;
 import com.graphViewer.model.GraphEdge;
 import com.graphViewer.model.GraphNode;
 import com.graphViewer.swing.ui.GraphViewer;
-import com.graphViewer.swing.ui.ProgressDialog;
 import com.graphViewer.swing.utils.StatusUtils;
 import org.graphstream.algorithm.generator.DorogovtsevMendesGenerator;
 import org.graphstream.algorithm.generator.Generator;
@@ -67,8 +66,6 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
 
     private JPanel outEdgePanel;
 
-//    private ScrollListener scroll;
-
     private int zoomLevel = 0;
 
     private Layout layout;
@@ -100,36 +97,28 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
         JTabbedPane content = new JTabbedPane();
         infoPane.add(content);
 
-//        content.setLayout(new GridLayout(1,3));
-
         nodeDetailsPanel = new JPanel();
         nodeDetailsPanel.setLayout(new GridLayout(10,1));
-//        nodeDetailsPanel.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
         content.add("Node Details: " ,nodeDetailsPanel);
 
 
         inEdgePanel = new JPanel();
         inEdgePanel.setLayout(new GridLayout(150,1));
-//        inEdgePanel.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
         JScrollPane pane = new JScrollPane(inEdgePanel);
         content.add("Referred By" ,pane);
 
 
         outEdgePanel = new JPanel();
         outEdgePanel.setLayout(new GridLayout(100,1));
-//        outEdgePanel.setBorder(new BevelBorder(BevelBorder.RAISED));
         pane = new JScrollPane(outEdgePanel);
         content.add("References",pane);
 
     }
 
     public boolean applyZoomLevel(int newZoomLevel) {
-        final ProgressDialog progressDialog = new ProgressDialog(app, "Generating Graph...",
-                true);
-        ApplyZoomWorker worker = new ApplyZoomWorker(newZoomLevel, progressDialog);
+        ApplyZoomWorker worker = new ApplyZoomWorker(newZoomLevel);
         try {
             worker.execute();
-            progressDialog.start();
             worker.get();
         } catch (Exception e1) {
             e1.printStackTrace();
@@ -146,24 +135,17 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
      */
     public final boolean loadGraph() {
         boolean ret = true;
-        zoomLevel = 8;
-        final ProgressDialog progressDialog = new ProgressDialog(app, "Generating Graph...",
-                true);
-        GraphController controller = app.getGraphController();
-        CreateGraphWorker worker = new CreateGraphWorker(app.getGraphController(), progressDialog);
+        zoomLevel = 6;
+
+        app.getStatusBar().showProgressBar();
+        CreateGraphWorker worker = new CreateGraphWorker(app.getGraphController());
         try {
             worker.execute();
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    progressDialog.start();
-                }
-            });
             this.graph = worker.get();
         } catch (Exception e1) {
-            e1.printStackTrace();
             ret = false;
         }
+        app.getStatusBar().hideProgressBar();
         return ret;
     }
 
@@ -175,22 +157,20 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
 
 
     class ApplyZoomWorker extends  SwingWorker< Void ,Void> {
-        private ProgressDialog pd;
+
         private int newZoomLevel;
 
-        public ApplyZoomWorker(int newZoomLevel,
-                                 final ProgressDialog pd) {
+        public ApplyZoomWorker(int newZoomLevel) {
             this.newZoomLevel = newZoomLevel;
-            this.pd = pd;
             this.addPropertyChangeListener(new PropertyChangeListener() {
                 @Override
                 public void propertyChange(final PropertyChangeEvent evt) {
                     if (evt.getPropertyName().equals("state")) {
                         if (evt.getNewValue() == SwingWorker.StateValue.DONE) {
-                            pd.end();
+                            app.getStatusBar().hideProgressBar();
                         }
                     } else if (evt.getPropertyName().equals("progress")) {
-                        pd.repaint();
+                        app.getStatusBar().showProgressBar();
                     }
                 }
             });
@@ -200,6 +180,7 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
         @Override
         protected Void doInBackground() throws Exception {
             try {
+                app.getStatusBar().showProgressBar();
                 if (newZoomLevel < 0) {
                     StatusUtils.getInstance(app).setErrorStatus("There is no zoom level further from the current level");
                 } else if (newZoomLevel > 10) {
@@ -209,6 +190,7 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
                     visualizeGraph();
                     StatusUtils.getInstance(app).setInfoStatus("Zoom level set to: " + zoomLevel);
                 }
+                app.getStatusBar().hideProgressBar();
             } catch (Exception e) {
                 e.printStackTrace();
                 StatusUtils.getInstance(app).setErrorStatus(e.getMessage());
@@ -220,23 +202,17 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
     class CreateGraphWorker extends SwingWorker<Graph, Void> {
 
         private GraphController graphController;
-        private ProgressDialog pd;
 
 
-        public CreateGraphWorker(GraphController graphController,
-                      final ProgressDialog pd) {
+        public CreateGraphWorker(GraphController graphController) {
             this.graphController = graphController;
-            this.pd = pd;
-            this.addPropertyChangeListener(new PropertyChangeListener() {
-                @Override
-                public void propertyChange(final PropertyChangeEvent evt) {
-                    if (evt.getPropertyName().equals("state")) {
-                        if (evt.getNewValue() == SwingWorker.StateValue.DONE) {
-                            pd.end();
-                        }
-                    } else if (evt.getPropertyName().equals("progress")) {
-                        pd.repaint();
+            this.addPropertyChangeListener(evt -> {
+                if (evt.getPropertyName().equals("state")) {
+                    if (evt.getNewValue() == StateValue.DONE) {
+                        app.getStatusBar().hideProgressBar();
                     }
+                } else if (evt.getPropertyName().equals("progress")) {
+                    app.getStatusBar().showProgressBar();
                 }
             });
 
@@ -262,7 +238,7 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
                         }
                     });
 //                }
-//                this.done();
+                app.getStatusBar().hideProgressBar();
             } catch (Exception e) {
                 e.printStackTrace();
                 StatusUtils.getInstance(app).setErrorStatus(e.getMessage());
@@ -272,6 +248,9 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
     }
 
 
+    public void refreshLayout(){
+        graphStreamViewer.enableAutoLayout();
+    }
     /**
      * Takes the virtual (GraphStream) graph and shows it in the panel.
      */
@@ -386,13 +365,6 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
             getEdgeDetails(outEdgePanel, edge, graphData);
 
         });
-//        SwingUtilities.invokeLater(new Runnable() {
-//            @Override
-//            public void run() {
-//
-////                outEdgePanel.setSize(300,200);
-//            }
-//        });
 
     }
 
@@ -409,8 +381,6 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
         GraphEdge e = graphData.getEdges().get(edgeId);
         e.getProperties().forEach((key, value) -> {
             panel.add (new JLabel(edge.getSourceNode().getId() + " " + key + " : " + value));
-//                        edgeModel.addElement(key + " : " + value);
-//                        content.add(new JLabel(key + " : " + value));
         });
     }
 

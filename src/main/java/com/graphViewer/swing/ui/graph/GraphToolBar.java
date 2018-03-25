@@ -6,7 +6,7 @@ package com.graphViewer.swing.ui.graph;
 import com.graphViewer.core.GraphController;
 
 import com.graphViewer.swing.ui.GraphViewer;
-import com.graphViewer.swing.ui.ProgressDialog;
+
 import com.graphViewer.swing.utils.StatusUtils;
 import com.graphViewer.swing.utils.UIUtils;
 import org.graphstream.graph.Graph;
@@ -84,13 +84,12 @@ public class GraphToolBar extends JToolBar {
 
 		JButton zoomIn = createNewButton(" Zoom In ", event ->{
 			try {
-				final ProgressDialog progressDialog = new ProgressDialog(app, "Zooming In Graph...",
-						true);
-			ZoomInWorker worker = new ZoomInWorker(app.getGraphController(), progressDialog);
+			app.getStatusBar().showProgressBar();
+			StatusUtils.getInstance(app).setInfoStatus(" Zooming In........ " );
+			ZoomInWorker worker = new ZoomInWorker(app.getGraphController());
 				try {
 					worker.execute();
-					progressDialog.start();
-
+					worker.get();
 				} catch (Exception e1) {
 					e1.printStackTrace();
 
@@ -98,17 +97,32 @@ public class GraphToolBar extends JToolBar {
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
+			app.getStatusBar().hideProgressBar();
 		}, " Zoom In Graph",new ImageIcon("images/magnifier--plus.png"));
 
 		JButton zoomOut = createNewButton(" Zoom Out ", event ->{
 			try {
+				app.getStatusBar().showProgressBar();
+				StatusUtils.getInstance(app).setInfoStatus(" Zooming out........ " );
 				app.getGraphPanel().zoomOut();//loadGraph();
 				int zoomLevel= app.getGraphPanel().getZoomLevel();
 				zoomLevelLabel.setText(String.valueOf(zoomLevel));
+				app.getStatusBar().hideProgressBar();
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
 		}, " Zoom Out Graph",new ImageIcon("images/magnifier--minus.png"));
+
+		JButton layoutBtn = createNewButton(" Beautify Graph", event ->{
+			try {
+				app.getGraphPanel().refreshLayout();
+
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		}, " Beautify Graph",null);
+
+
 		add(loadNodes);
 		add(loadEdges);
 		addSeparator();
@@ -116,6 +130,8 @@ public class GraphToolBar extends JToolBar {
 		addSeparator();
 		buttonsPanel.add(zoomIn);
 		buttonsPanel.add(zoomOut);
+		addSeparator();
+		buttonsPanel.add(layoutBtn);
 		add(buttonsPanel);
 
 		JPanel nodesPanel = new JPanel();
@@ -151,30 +167,31 @@ public class GraphToolBar extends JToolBar {
 		private GraphController graphController;
 
 
-		public ZoomInWorker(GraphController graphController,
-					  final ProgressDialog pd) {
+		public ZoomInWorker(GraphController graphController) {
 			this.graphController = graphController;
-			this.addPropertyChangeListener(new PropertyChangeListener() {
-				@Override
-				public void propertyChange(final PropertyChangeEvent evt) {
-					if (evt.getPropertyName().equals("state")) {
-						if (evt.getNewValue() == SwingWorker.StateValue.DONE) {
-							pd.end();
-						}
-					} else if (evt.getPropertyName().equals("progress")) {
-						pd.repaint();
-					}
-				}
-			});
+//			this.addPropertyChangeListener(new PropertyChangeListener() {
+//				@Override
+//				public void propertyChange(final PropertyChangeEvent evt) {
+//					if (evt.getPropertyName().equals("state")) {
+//						if (evt.getNewValue() == SwingWorker.StateValue.DONE) {
+//							pd.end();
+//						}
+//					} else if (evt.getPropertyName().equals("progress")) {
+//						pd.repaint();
+//					}
+//				}
+//			});
 
 		}
 
 		@Override
 		protected Graph doInBackground() throws Exception {
 			try {
+				app.getStatusBar().showProgressBar();
 				app.getGraphPanel().zoomIn();//loadGraph();
 				int zoomLevel= app.getGraphPanel().getZoomLevel();
 				zoomLevelLabel.setText(String.valueOf(zoomLevel));
+				app.getStatusBar().hideProgressBar();
 			} catch (Exception e) {
 				e.printStackTrace();
 				StatusUtils.getInstance(app).setErrorStatus(e.getMessage());
