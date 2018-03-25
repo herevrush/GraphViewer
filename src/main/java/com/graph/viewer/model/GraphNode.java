@@ -1,9 +1,12 @@
 package com.graph.viewer.model;
 
+import java.util.List;
+
 public class GraphNode extends ElementImpl {
 
 //    private int x;
 //    private int y;
+
     public GraphNode(String name){
         super(name);
 

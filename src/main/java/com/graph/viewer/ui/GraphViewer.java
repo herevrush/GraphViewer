@@ -24,7 +24,6 @@ public class GraphViewer extends JFrame implements Observer {
     /** The main pane of the window. */
     private GraphPanel graphPanel;
 
-    private GraphController graphController;
 
     /** The status bar of the window. */
     private StatusBar statusBar;
@@ -57,7 +56,7 @@ public class GraphViewer extends JFrame implements Observer {
      * Initiate a new GraphViewer with default settings.
      */
     public GraphViewer() {
-        graphController = new GraphController();
+
         init();
     }
 
@@ -65,9 +64,7 @@ public class GraphViewer extends JFrame implements Observer {
         return graphPanel;
     }
 
-    public GraphController getGraphController() {
-        return graphController;
-    }
+
 
     private void init() {
         try {

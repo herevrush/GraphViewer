@@ -31,16 +31,16 @@ public class GraphToolBar extends JToolBar {
 	public GraphToolBar(final GraphViewer app) {
 
 		super("App toolbar", JToolBar.HORIZONTAL);
-		graphController = new GraphController();
+
 		this.app = app;
 		setRollover(true);
 		setVisible(true);
 		JButton loadNodes = createNewButton(" Load Nodes ", event ->{
 			String filename = UIUtils.getInstance().openFileDialog(app,event.getActionCommand());
 			if (filename != null){
-				int nodes = app.getGraphController().addNodes(filename);
+				int nodes = app.getGraphPanel().getGraphController().addNodes(filename);
 				nodesLabel.setText(String.valueOf(nodes));
-				StatusUtils.getInstance(app).setInfoStatus(" nodes = " + app.getGraphController().getGraphData().getNodes().size());
+				StatusUtils.getInstance(app).setInfoStatus(" nodes = " + app.getGraphPanel().getGraphController().getGraphData().getNodes().size());
 			}
 //            String fd = "/home/vs/Downloads/data/papers.csv";
 		}, " Select Nodes File",null);
@@ -49,12 +49,12 @@ public class GraphToolBar extends JToolBar {
 			String filename = UIUtils.getInstance().openFileDialog(app,event.getActionCommand());
 			if (filename != null){
 //				String fd = "/home/vs/Downloads/data/paperlinks.csv";
-				if(app.getGraphController().getGraphData().getNodes() != null){
-					int edges = app.getGraphController().addEdges(filename);
+				try{
+					int edges = app.getGraphPanel().getGraphController().addEdges(filename);
 					edgesLabel.setText(String.valueOf(edges));
-					StatusUtils.getInstance(app).setInfoStatus(" edges = " + app.getGraphController().getGraphData().getEdges().size());
+					StatusUtils.getInstance(app).setInfoStatus(" edges = " + app.getGraphPanel().getGraphController().getGraphData().getEdges().size());
 				}
-				else{
+				catch (Exception e){
 					UIUtils.getInstance().openMessageDialog(app, " Nodes Not Found" , "Please load Graph nodes before loading edges.");
 				}
 			}
@@ -80,7 +80,7 @@ public class GraphToolBar extends JToolBar {
 			try {
 			app.getStatusBar().showProgressBar();
 			StatusUtils.getInstance(app).setInfoStatus(" Zooming In........ " );
-			ZoomInWorker worker = new ZoomInWorker(app.getGraphController());
+			ZoomInWorker worker = new ZoomInWorker(app.getGraphPanel().getGraphController());
 				try {
 					worker.execute();
 					worker.get();

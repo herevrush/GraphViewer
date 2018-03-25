@@ -27,7 +27,7 @@ import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-public class GraphPanel extends JSplitPane implements ViewerListener {
+public class GraphPanel extends JSplitPane  {
 
     /**
      * The swingApp this panel is part of.
@@ -39,7 +39,7 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
      */
     private JScrollPane graphPane;
 
-    private Graph graph;
+//    private Graph graph;
 
     private boolean loop = true;
 
@@ -57,10 +57,14 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
 
     private int zoomLevel = 0;
 
-    private Layout layout;
+
+
+    private GraphController graphController;
+
 
     public GraphPanel(final GraphViewer app) {
         super(JSplitPane.VERTICAL_SPLIT, true);
+        graphController = new GraphController(this);
         this.app = app;
         viewSize = new Dimension(2000, 2000);
         graphPane = new JScrollPane();
@@ -80,6 +84,10 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
 		graphPane.getHorizontalScrollBar().setUnitIncrement(100);
         graphPane.getVerticalScrollBar().setUnitIncrement(100);
 
+    }
+
+    public GraphController getGraphController() {
+        return graphController;
     }
 
     private void initInfoPane(JPanel infoPane){
@@ -127,10 +135,10 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
         zoomLevel = 6;
 
         app.getStatusBar().showProgressBar();
-        CreateGraphWorker worker = new CreateGraphWorker(app.getGraphController());
+        CreateGraphWorker worker = new CreateGraphWorker(graphController);
         try {
             worker.execute();
-            this.graph = worker.get();
+            worker.get();
         } catch (Exception e1) {
             ret = false;
         }
@@ -188,7 +196,7 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
         }
 
     }
-    class CreateGraphWorker extends SwingWorker<Graph, Void> {
+    class CreateGraphWorker extends SwingWorker<Void, Void> {
 
         private GraphController graphController;
 
@@ -209,18 +217,18 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
 
 
         @Override
-        protected Graph doInBackground() throws Exception {
+        protected Void doInBackground() throws Exception {
             try {
-                graph = graphController.createNewGraph();
+                graphController.createNewGraph();
                 visualizeGraph();
-                graphController.generateGraph(graph);
+                graphController.generateGraph();
 //                while (loop) {
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {
 
                             try {
-                                layout.compute();
+                                graphController.getLayout().compute();
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -232,7 +240,7 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
                 e.printStackTrace();
                 StatusUtils.getInstance(app).setErrorStatus(e.getMessage());
             }
-            return graph;
+            return null;
         }
     }
 
@@ -244,35 +252,9 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
      * Takes the virtual (GraphStream) graph and shows it in the panel.
      */
     private void visualizeGraph() {
-        graphStreamViewer = new Viewer(graph,
-                Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
-        graphStreamViewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
-//        graphStreamViewer.enableAutoLayout();
-        layout = new SpringBox(false);
+        graphController.visualize(zoomLevel);
 
-        graph.addSink(layout);
-        layout.addAttributeSink(graph);
-        layout.setQuality(0.7);
-//        graphStreamViewer.enableAutoLayout(layout);
-//
-        DefaultView viewPanel = new DefaultView(graphStreamViewer, Viewer.DEFAULT_VIEW_ID,
-                new SwingBasicGraphRenderer());
-        graphStreamViewer.addView(viewPanel);
-
-//        viewPanel = graphStreamViewer.addDefaultView(false);
-        viewPanel.addMouseListener(new GraphMouseListener());
-        viewPanel.setMinimumSize(viewSize);
-        viewPanel.setPreferredSize(viewSize);
-        viewPanel.setMaximumSize(viewSize);
-//        viewPanel.setEnabled(false);
-        viewPanel.getCamera().setViewPercent((double)zoomLevel/10);
-        viewPanel.getCamera().setViewCenter(0,0,0);
-        viewerPipe = graphStreamViewer.newViewerPipe();
-        viewerPipe.addViewerListener(this);
-        viewerPipe.addSink(graph);
-//        viewPanel.setMouseManager(new GraphMouseManager(viewerPipe));
-
-        graphPane.setViewportView(viewPanel);
+        graphPane.setViewportView(graphController.getGraphStreamViewer().getDefaultView());
         graphPane.getHorizontalScrollBar().setValue(graphPane.getHorizontalScrollBar().getValue());
 
         app.revalidate();
@@ -304,32 +286,9 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
     }
 
 
-    private void setSelectedNode(final Node newSelectedNode) {
 
-        GraphData graphData = app.getGraphController().getGraphData();
-        System.out.println( "Selected Node : " +  newSelectedNode.getId());
-        if(newSelectedNode != null) {
-            String previousNode = graphData.getSelectedNode();
-            if (previousNode != null) {
-                Node selected = graph.getNode(String.valueOf(previousNode));
-                if (selected != null) {
-                    //remove previous node
-                    if (selected.hasAttribute("ui.selected")) {
-                        selected.removeAttribute("ui.selected");
-                    }
-                }
-            }
-            if (!newSelectedNode.hasAttribute("ui.selected")) {
-                newSelectedNode.addAttribute("ui.selected", new Object[0]);
-            }
-            graphData.setSelectedNode(newSelectedNode.getId());
-            updateInfo(newSelectedNode, graphData);
 
-        }
-        StatusUtils.getInstance(app).setInfoStatus("Selected node: " + newSelectedNode.getId());
-    }
-
-    private void updateInfo(Node node, GraphData graphData){
+    public void updateInfo(Node node, GraphData graphData){
         GraphNode graphNode = graphData.getNodes().get(graphData.getSelectedNode());
         //add data to infopane
 
@@ -352,7 +311,7 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
             getEdgeDetails(outEdgePanel, edge, graphData);
 
         });
-
+        StatusUtils.getInstance(app).setInfoStatus("Selected node: " + node.getId());
     }
 
     /**
@@ -371,32 +330,32 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
         });
     }
 
-    @Override
-    public void viewClosed(String s) {
-        loop = false;
-        graphStreamViewer.getDefaultView().removeMouseListener(new GraphMouseListener());
-    }
-
-    @Override
-    public void buttonPushed(String s) {
-
-        System.out.println("Button pushed on node " + s);
-        Node node = graph.getNode(s);
-        if(node != null){
-            node.addAttribute("layout.frozen", new Object[0]);
-            setSelectedNode(graph.getNode(s));
-        }
-
-    }
-
-    @Override
-    public void buttonReleased(String s) {
-        System.out.println(" Button released" + s);
-        Node node = graph.getNode(s);
-        if(node != null){
-            node.removeAttribute("layout.frozen");
-        }
-    }
+//    @Override
+//    public void viewClosed(String s) {
+//        loop = false;
+//        graphStreamViewer.getDefaultView().removeMouseListener(new GraphMouseListener());
+//    }
+//
+//    @Override
+//    public void buttonPushed(String s) {
+//
+//        System.out.println("Button pushed on node " + s);
+//        Node node = graphController.getGraph().getNode(s);
+//        if(node != null){
+//            node.addAttribute("layout.frozen", new Object[0]);
+//            setSelectedNode(graphController.getGraph().getNode(s));
+//        }
+//
+//    }
+//
+//    @Override
+//    public void buttonReleased(String s) {
+//        System.out.println(" Button released" + s);
+//        Node node = graphController.getGraph().getNode(s);
+//        if(node != null){
+//            node.removeAttribute("layout.frozen");
+//        }
+//    }
 
 
     final class GraphScrollListener implements AdjustmentListener {
@@ -418,52 +377,52 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
 
     }
 
-    class GraphMouseListener implements MouseInputListener{
-
-        @Override
-        public void mouseClicked(MouseEvent e) {
-//            System.out.println(" mouse mouseClicked");
+//    class GraphMouseListener implements MouseInputListener{
+//
+//        @Override
+//        public void mouseClicked(MouseEvent e) {
+////            System.out.println(" mouse mouseClicked");
+////            viewerPipe.pump();
+//
+//        }
+//
+//        @Override
+//        public void mousePressed(MouseEvent e) {
+//        System.out.println(" mouse mousePressed");
+//            graphStreamViewer.getDefaultView().requestFocus();
 //            viewerPipe.pump();
-
-        }
-
-        @Override
-        public void mousePressed(MouseEvent e) {
-        System.out.println(" mouse mousePressed");
-            graphStreamViewer.getDefaultView().requestFocus();
-            viewerPipe.pump();
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent e) {
-            System.out.println(" mouse released");
-            graphStreamViewer.getDefaultView().requestFocus();
-            viewerPipe.pump();
-
-        }
-
-        @Override
-        public void mouseEntered(MouseEvent e) {
-//        System.out.println(" mouse mouseEntered");
-
-        }
-
-        @Override
-        public void mouseExited(MouseEvent e) {
-
-        }
-
-        @Override
-        public void mouseDragged(MouseEvent e) {
-//            System.out.println(" mouse mouseDragged");
-
-        }
-
-        @Override
-        public void mouseMoved(MouseEvent e) {
-//            System.out.println(" mouse mouseMoved");
-
-        }
-    }
+//        }
+//
+//        @Override
+//        public void mouseReleased(MouseEvent e) {
+//            System.out.println(" mouse released");
+//            graphStreamViewer.getDefaultView().requestFocus();
+//            viewerPipe.pump();
+//
+//        }
+//
+//        @Override
+//        public void mouseEntered(MouseEvent e) {
+////        System.out.println(" mouse mouseEntered");
+//
+//        }
+//
+//        @Override
+//        public void mouseExited(MouseEvent e) {
+//
+//        }
+//
+//        @Override
+//        public void mouseDragged(MouseEvent e) {
+////            System.out.println(" mouse mouseDragged");
+//
+//        }
+//
+//        @Override
+//        public void mouseMoved(MouseEvent e) {
+////            System.out.println(" mouse mouseMoved");
+//
+//        }
+//    }
 
 }

@@ -1,5 +1,7 @@
 package com.graph.viewer.model;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class GraphData {
@@ -8,10 +10,24 @@ public class GraphData {
 
     private String selectedNode;
 
+//    private List<String> nodeHeaders;
 
     private Map<String,GraphNode> nodes;
 
     private Map<String,GraphEdge> edges;
+
+
+    public GraphData(){
+        nodes = new HashMap<String, GraphNode>();
+        edges = new HashMap<String, GraphEdge>();
+    }
+//    public List<String> getNodeHeaders() {
+//        return nodeHeaders;
+//    }
+
+//    public void setNodeHeaders(List<String> nodeHeaders) {
+//        this.nodeHeaders = nodeHeaders;
+//    }
 
     public String getFirstNodeName() {
         return firstNodeName;

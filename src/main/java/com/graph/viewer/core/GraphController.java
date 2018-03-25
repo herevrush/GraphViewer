@@ -4,24 +4,39 @@ package com.graph.viewer.core;
 import com.graph.viewer.model.GraphData;
 import com.graph.viewer.model.GraphEdge;
 import com.graph.viewer.model.GraphNode;
+import com.graph.viewer.ui.graph.GraphPanel;
+import com.graph.viewer.utils.StatusUtils;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
+import org.graphstream.ui.layout.Layout;
+import org.graphstream.ui.layout.springbox.implementations.SpringBox;
+import org.graphstream.ui.swingViewer.DefaultView;
+import org.graphstream.ui.swingViewer.basicRenderer.SwingBasicGraphRenderer;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.ViewerListener;
 import org.graphstream.ui.view.ViewerPipe;
 
 import javax.swing.event.MouseInputListener;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 
 
-public class GraphController {
-    protected boolean loop = true;
+public class GraphController implements ViewerListener{
+//    protected boolean loop = true;
     private GraphData graphData;
-    private Viewer graphstreamViewer;
+    private Viewer graphStreamViewer;
+    private Dimension viewSize;
+    private ViewerPipe viewerPipe;
+    private Graph graph;
 
-    public GraphController(){
+    private boolean loop = true;
+
+    private GraphPanel graphPanel;
+    private Layout layout;
+    public GraphController(GraphPanel graphPanel){
+        this.graphPanel = graphPanel;
         graphData = new GraphData();
 
     }
@@ -32,7 +47,7 @@ public class GraphController {
     }
 
 
-    public int addEdges(String fileName){
+    public int addEdges(String fileName) throws Exception {
         GraphImporter.getInstance().importEdgesFromCSV(fileName, graphData);
         return graphData.getEdges().keySet().size();
     }
@@ -41,7 +56,7 @@ public class GraphController {
         return graphData;
     }
 
-    public Graph generateGraph(Graph graph){
+    public Graph generateGraph(){
         try{
             if(graphData.getNodes() != null){
                 for (GraphNode n:graphData.getNodes().values()) {
@@ -81,32 +96,167 @@ public class GraphController {
         }
         return null;
     }
+    private void setSelectedNode(final Node newSelectedNode) {
 
-    public Graph createNewGraph(){
+
+        System.out.println( "Selected Node : " +  newSelectedNode.getId());
+        if(newSelectedNode != null) {
+            String previousNode = graphData.getSelectedNode();
+            if (previousNode != null) {
+                Node selected = graph.getNode(String.valueOf(previousNode));
+                if (selected != null) {
+                    //remove previous node
+                    if (selected.hasAttribute("ui.selected")) {
+                        selected.removeAttribute("ui.selected");
+                    }
+                }
+            }
+            if (!newSelectedNode.hasAttribute("ui.selected")) {
+                newSelectedNode.addAttribute("ui.selected", new Object[0]);
+            }
+            graphData.setSelectedNode(newSelectedNode.getId());
+            graphPanel.updateInfo(newSelectedNode, graphData);
+
+        }
+
+    }
+    public Graph getGraph() {
+        return graph;
+    }
+
+    public Layout getLayout() {
+        return layout;
+    }
+
+    public void createNewGraph(){
         try{
-            Graph graph = new MultiGraph("graph1");
+            graph = new MultiGraph("graph1");
             graph.addAttribute("ui.stylesheet", "url('style.css')");
 
             graph.addAttribute("ui.quality");
             graph.addAttribute("ui.antialias");
             graph.setAutoCreate(true);
             graph.setStrict(true);
-            return graph;
+
         }
         catch(Exception e){
             System.out.println(" could not create new graph");
             e.printStackTrace();
         }
-        return null;
+
     }
 
-//    private void addViewer(Graph graph){
-//        graphstreamViewer = new Viewer(graph,
-//                Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
-//        graphstreamViewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
-//        graphstreamViewer.enableAutoLayout();
-//
-//    }
+    public void visualize(int zoomLevel){
+        graphStreamViewer = new Viewer(graph,
+                Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
+        graphStreamViewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
+//        graphStreamViewer.enableAutoLayout();
+
+        layout = new SpringBox(false);
+
+        graph.addSink(layout);
+        layout.addAttributeSink(graph);
+        layout.setQuality(0.7);
+
+//        graphStreamViewer.enableAutoLayout(layout);
+
+        DefaultView viewPanel = new DefaultView(graphStreamViewer, Viewer.DEFAULT_VIEW_ID,
+                new SwingBasicGraphRenderer());
+        graphStreamViewer.addView(viewPanel);
+        //        viewPanel = graphStreamViewer.addDefaultView(false);
+        viewPanel.addMouseListener(new GraphMouseListener());
+        viewPanel.setMinimumSize(viewSize);
+        viewPanel.setPreferredSize(viewSize);
+        viewPanel.setMaximumSize(viewSize);
+//        viewPanel.setEnabled(false);
+        viewPanel.getCamera().setViewPercent((double)zoomLevel/10);
+        viewPanel.getCamera().setViewCenter(0,0,0);
+
+        viewerPipe = graphStreamViewer.newViewerPipe();
+        viewerPipe.addViewerListener(this);
+        viewerPipe.addSink(graph);
+//        viewPanel.setMouseManager(new GraphMouseManager(viewerPipe));
+
+    }
+
+    public Viewer getGraphStreamViewer() {
+        return graphStreamViewer;
+    }
+
+    @Override
+    public void viewClosed(String s) {
+        loop = false;
+        graphStreamViewer.getDefaultView().removeMouseListener(new GraphMouseListener());
+    }
+
+    @Override
+    public void buttonPushed(String s) {
+
+        System.out.println("Button pushed on node " + s);
+        Node node = graph.getNode(s);
+        if(node != null){
+            node.addAttribute("layout.frozen", new Object[0]);
+            setSelectedNode(graph.getNode(s));
+        }
+
+    }
+
+    @Override
+    public void buttonReleased(String s) {
+        System.out.println(" Button released" + s);
+        Node node = graph.getNode(s);
+        if(node != null){
+            node.removeAttribute("layout.frozen");
+        }
+    }
+
+    class GraphMouseListener implements MouseInputListener{
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+//            System.out.println(" mouse mouseClicked");
+//            viewerPipe.pump();
+
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            System.out.println(" mouse mousePressed");
+            graphStreamViewer.getDefaultView().requestFocus();
+            viewerPipe.pump();
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            System.out.println(" mouse released");
+            graphStreamViewer.getDefaultView().requestFocus();
+            viewerPipe.pump();
+
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+//        System.out.println(" mouse mouseEntered");
+
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+//            System.out.println(" mouse mouseDragged");
+
+        }
+
+        @Override
+        public void mouseMoved(MouseEvent e) {
+//            System.out.println(" mouse mouseMoved");
+
+        }
+    }
 
 //    public Viewer generateGraph(Graph graph){
 //        try{
@@ -177,8 +327,6 @@ public class GraphController {
 //    public Viewer getGraphstreamViewer() {
 //        return graphstreamViewer;
 //    }
-
-
 
 
 
