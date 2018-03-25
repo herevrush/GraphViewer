@@ -1,9 +1,7 @@
-package com.graphViewer.swing.utils;
+package com.graph.viewer.utils;
 
-import com.graphViewer.model.StatusMessage;
-import com.graphViewer.swing.ui.GraphViewer;
-
-import java.awt.*;
+import com.graph.viewer.model.StatusMessage;
+import com.graph.viewer.ui.GraphViewer;
 
 public class StatusUtils {
 

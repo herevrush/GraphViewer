@@ -1,7 +1,4 @@
-package com.graphViewer.swing.utils;
-
-import com.graphViewer.model.StatusMessage;
-import com.graphViewer.swing.ui.GraphViewer;
+package com.graph.viewer.utils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +8,7 @@ public class UIUtils {
     private static UIUtils INSTANCE ;
 
 
-    private GraphViewer app;
+
 
     private UIUtils(){
 

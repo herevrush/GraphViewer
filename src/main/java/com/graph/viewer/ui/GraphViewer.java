@@ -1,10 +1,10 @@
-package com.graphViewer.swing.ui;
+package com.graph.viewer.ui;
 
 
-import com.graphViewer.core.GraphController;
-import com.graphViewer.swing.ui.graph.GraphPanel;
-import com.graphViewer.swing.ui.graph.GraphToolBar;
-import com.graphViewer.swing.utils.StatusUtils;
+import com.graph.viewer.core.GraphController;
+import com.graph.viewer.utils.StatusUtils;
+import com.graph.viewer.ui.graph.GraphPanel;
+import com.graph.viewer.ui.graph.GraphToolBar;
 
 
 import javax.swing.*;

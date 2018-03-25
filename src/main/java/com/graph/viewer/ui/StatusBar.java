@@ -1,6 +1,6 @@
-package com.graphViewer.swing.ui;
+package com.graph.viewer.ui;
 
-import com.graphViewer.model.StatusMessage;
+import com.graph.viewer.model.StatusMessage;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;

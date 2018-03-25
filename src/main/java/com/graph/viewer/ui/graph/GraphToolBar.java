@@ -1,24 +1,18 @@
-package com.graphViewer.swing.ui.graph;
+package com.graph.viewer.ui.graph;
 
 
 
 
-import com.graphViewer.core.GraphController;
+import com.graph.viewer.core.GraphController;
+import com.graph.viewer.ui.GraphViewer;
+import com.graph.viewer.utils.StatusUtils;
 
-import com.graphViewer.swing.ui.GraphViewer;
-
-import com.graphViewer.swing.utils.StatusUtils;
-import com.graphViewer.swing.utils.UIUtils;
+import com.graph.viewer.utils.UIUtils;
 import org.graphstream.graph.Graph;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
-import javax.swing.plaf.IconUIResource;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 /**
  * The main tool bar.

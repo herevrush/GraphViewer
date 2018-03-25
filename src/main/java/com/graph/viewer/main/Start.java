@@ -1,6 +1,8 @@
-package com.graphViewer.swing;
+package com.graph.viewer.main;
 
-import com.graphViewer.swing.ui.GraphViewer;
+
+
+import com.graph.viewer.ui.GraphViewer;
 
 import javax.swing.*;
 

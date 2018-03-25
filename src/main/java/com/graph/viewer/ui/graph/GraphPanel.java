@@ -1,42 +1,31 @@
-package com.graphViewer.swing.ui.graph;
+package com.graph.viewer.ui.graph;
 
 
-import com.graphViewer.core.GraphController;
-import com.graphViewer.model.GraphData;
+import com.graph.viewer.core.GraphController;
+import com.graph.viewer.model.GraphData;
+import com.graph.viewer.model.GraphEdge;
+import com.graph.viewer.ui.GraphViewer;
+import com.graph.viewer.utils.StatusUtils;
 
-import com.graphViewer.model.GraphEdge;
-import com.graphViewer.model.GraphNode;
-import com.graphViewer.swing.ui.GraphViewer;
-import com.graphViewer.swing.utils.StatusUtils;
-import org.graphstream.algorithm.generator.DorogovtsevMendesGenerator;
-import org.graphstream.algorithm.generator.Generator;
+import com.graph.viewer.model.GraphNode;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
-import org.graphstream.ui.graphicGraph.GraphicElement;
-import org.graphstream.ui.j2dviewer.J2DGraphRenderer;
 import org.graphstream.ui.layout.Layout;
 import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.swingViewer.DefaultView;
-import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.swingViewer.basicRenderer.SwingBasicGraphRenderer;
-import org.graphstream.ui.view.View;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.ViewerListener;
 import org.graphstream.ui.view.ViewerPipe;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.SoftBevelBorder;
 import javax.swing.event.MouseInputListener;
-import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.HashSet;
-import java.util.concurrent.ExecutionException;
 
 public class GraphPanel extends JSplitPane implements ViewerListener {
 
@@ -286,8 +275,6 @@ public class GraphPanel extends JSplitPane implements ViewerListener {
         graphPane.setViewportView(viewPanel);
         graphPane.getHorizontalScrollBar().setValue(graphPane.getHorizontalScrollBar().getValue());
 
-
-        graph.addAttribute("ui.stylesheet", "url('style.css')");
         app.revalidate();
         centerVertical();
 

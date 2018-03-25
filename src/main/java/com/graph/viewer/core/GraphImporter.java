@@ -1,9 +1,8 @@
-package com.graphViewer.core;
+package com.graph.viewer.core;
 
-import com.graphViewer.model.GraphData;
-import com.graphViewer.model.GraphEdge;
-import com.graphViewer.model.GraphNode;
-import org.graphstream.ui.swingViewer.basicRenderer.SwingBasicGraphRenderer;
+import com.graph.viewer.model.GraphData;
+import com.graph.viewer.model.GraphEdge;
+import com.graph.viewer.model.GraphNode;
 
 import java.io.*;
 import java.nio.file.InvalidPathException;
@@ -117,10 +116,7 @@ public class GraphImporter {
                                 }
                             }
                         }
-                        else{
-//                            System.out.println(" Error adding line " + line);
-//                            System.out.println(" Erro " + source + " " + target);
-                        }
+
                     });
 
                     br.close();

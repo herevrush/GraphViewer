@@ -1,15 +1,13 @@
-package com.graphViewer.core;
+package com.graph.viewer.core;
 
 
-import com.graphViewer.model.GraphData;
-import com.graphViewer.model.GraphEdge;
-import com.graphViewer.model.GraphNode;
+import com.graph.viewer.model.GraphData;
+import com.graph.viewer.model.GraphEdge;
+import com.graph.viewer.model.GraphNode;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
-import org.graphstream.graph.implementations.SingleGraph;
-import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.ViewerListener;
 import org.graphstream.ui.view.ViewerPipe;
@@ -18,21 +16,10 @@ import javax.swing.event.MouseInputListener;
 import java.awt.event.MouseEvent;
 
 
-public class GraphController implements ViewerListener, MouseInputListener {
+public class GraphController {
     protected boolean loop = true;
     private GraphData graphData;
     private Viewer graphstreamViewer;
-    private ViewerPipe viewerPipe;
-    private static  String styleSheet = "graph { fill-color: #D0CDFF; }"
-            + "node { size: 3px; fill-mode: dyn-plain; " +
-            "fill-color: #BB3B13; text-color: #BB3B13; text-alignment: under; text-background-mode: rounded-box; " +
-            "text-background-color: #565656; text-padding: 1px, 4px; text-offset: 0px, 5px; }"
-            + "node.current { fill-color: #ffc438; }"
-            + "edge { fill-color: #141EA1; text-color: #141EA1; text-alignment: under; arrow-size: 3px, 2px; " +
-            "text-background-mode: rounded-box; text-background-color: #565656; " +
-            "text-padding: 2px, 2px; text-offset: 0px, 5px; }"
-            + "edge.loop { text-alignment: left; text-background-mode: rounded-box; " +
-            "text-background-color: #565656; text-padding: 5px, 4px; text-offset: 20px, -25px; }";
 
     public GraphController(){
         graphData = new GraphData();
@@ -98,7 +85,8 @@ public class GraphController implements ViewerListener, MouseInputListener {
     public Graph createNewGraph(){
         try{
             Graph graph = new MultiGraph("graph1");
-            graph.addAttribute("ui.stylesheet", styleSheet);
+            graph.addAttribute("ui.stylesheet", "url('style.css')");
+
             graph.addAttribute("ui.quality");
             graph.addAttribute("ui.antialias");
             graph.setAutoCreate(true);
@@ -112,13 +100,13 @@ public class GraphController implements ViewerListener, MouseInputListener {
         return null;
     }
 
-    private void addViewer(Graph graph){
-        graphstreamViewer = new Viewer(graph,
-                Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
-        graphstreamViewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
-        graphstreamViewer.enableAutoLayout();
-
-    }
+//    private void addViewer(Graph graph){
+//        graphstreamViewer = new Viewer(graph,
+//                Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
+//        graphstreamViewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
+//        graphstreamViewer.enableAutoLayout();
+//
+//    }
 
 //    public Viewer generateGraph(Graph graph){
 //        try{
@@ -192,52 +180,7 @@ public class GraphController implements ViewerListener, MouseInputListener {
 
 
 
-    public void viewClosed(String id) {
-        loop = false;
-        graphstreamViewer.getDefaultView().removeMouseListener(this);
-    }
-
-    public void buttonPushed(String id) {
-        System.out.println("Button pushed on node "+id);
-    }
-
-    public void buttonReleased(String id) {
-        System.out.println("Button released on node "+id);
-    }
 
 
-    @Override
-    public void mouseClicked(MouseEvent e) {
 
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        viewerPipe.pump();
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseMoved(MouseEvent e) {
-
-    }
 }

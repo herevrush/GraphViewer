@@ -85,7 +85,7 @@
     </dependencies>
     <name> Graph Viewer</name>
     <properties>
-        <main.class>ExampleGraph</main.class>
+        <sun.java2d.opengl>true</sun.java2d.opengl>
         <lib.directory>lib</lib.directory>
         <!--<swt.version>4.6</swt.version>-->
         <!--<swt.artifactId>org.eclipse.swt.gtk.linux.x86_64</swt.artifactId>-->
@@ -257,7 +257,7 @@
                     <archive>
                         <manifest>
                             <!--<mainClass>com.graphViewer.main.GraphViewer</mainClass>-->
-                            <mainClass>com.graphViewer.swing.Start</mainClass>
+                            <mainClass>com.graph.viewer.main.Start</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

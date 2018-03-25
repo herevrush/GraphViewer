@@ -1,4 +1,4 @@
-package com.graphViewer.model;
+package com.graph.viewer.model;
 
 public enum StatusMessage {
 
