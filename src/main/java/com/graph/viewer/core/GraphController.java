@@ -37,6 +37,7 @@ public class GraphController implements ViewerListener{
     private Layout layout;
     public GraphController(GraphPanel graphPanel){
         this.graphPanel = graphPanel;
+        viewSize = new Dimension(2000, 2000);
         graphData = new GraphData();
 
     }
@@ -146,7 +147,7 @@ public class GraphController implements ViewerListener{
 
     }
 
-    public void visualize(int zoomLevel){
+    public void visualize(double zoomLevel){
         graphStreamViewer = new Viewer(graph,
                 Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
         graphStreamViewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
@@ -169,7 +170,7 @@ public class GraphController implements ViewerListener{
         viewPanel.setPreferredSize(viewSize);
         viewPanel.setMaximumSize(viewSize);
 //        viewPanel.setEnabled(false);
-        viewPanel.getCamera().setViewPercent((double)zoomLevel/10);
+        viewPanel.getCamera().setViewPercent(zoomLevel);
         viewPanel.getCamera().setViewCenter(0,0,0);
 
         viewerPipe = graphStreamViewer.newViewerPipe();
@@ -177,6 +178,10 @@ public class GraphController implements ViewerListener{
         viewerPipe.addSink(graph);
 //        viewPanel.setMouseManager(new GraphMouseManager(viewerPipe));
 
+    }
+
+    public ViewerPipe getViewerPipe() {
+        return viewerPipe;
     }
 
     public Viewer getGraphStreamViewer() {

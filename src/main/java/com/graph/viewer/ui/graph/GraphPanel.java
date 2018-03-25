@@ -39,16 +39,6 @@ public class GraphPanel extends JSplitPane  {
      */
     private JScrollPane graphPane;
 
-//    private Graph graph;
-
-    private boolean loop = true;
-
-    private Viewer graphStreamViewer;
-
-    private Dimension viewSize;
-
-    private ViewerPipe viewerPipe;
-
     private JPanel nodeDetailsPanel;
 
     private JPanel inEdgePanel;
@@ -66,7 +56,6 @@ public class GraphPanel extends JSplitPane  {
         super(JSplitPane.VERTICAL_SPLIT, true);
         graphController = new GraphController(this);
         this.app = app;
-        viewSize = new Dimension(2000, 2000);
         graphPane = new JScrollPane();
         graphPane.setMinimumSize(new Dimension(2, 2));
 
@@ -112,16 +101,16 @@ public class GraphPanel extends JSplitPane  {
 
     }
 
-    public boolean applyZoomLevel(int newZoomLevel) {
+    private void applyZoomLevel(int newZoomLevel) {
         ApplyZoomWorker worker = new ApplyZoomWorker(newZoomLevel);
         try {
             worker.execute();
             worker.get();
         } catch (Exception e1) {
             e1.printStackTrace();
-            return false;
+
         }
-        return false;
+
     }
 
 
@@ -130,7 +119,7 @@ public class GraphPanel extends JSplitPane  {
     /**
      * Loads a graph into the content scroll pane.
      */
-    public final boolean loadGraph() {
+    public boolean loadGraph() {
         boolean ret = true;
         zoomLevel = 6;
 
@@ -157,25 +146,22 @@ public class GraphPanel extends JSplitPane  {
 
         private int newZoomLevel;
 
-        public ApplyZoomWorker(int newZoomLevel) {
+        ApplyZoomWorker(int newZoomLevel) {
             this.newZoomLevel = newZoomLevel;
-            this.addPropertyChangeListener(new PropertyChangeListener() {
-                @Override
-                public void propertyChange(final PropertyChangeEvent evt) {
-                    if (evt.getPropertyName().equals("state")) {
-                        if (evt.getNewValue() == SwingWorker.StateValue.DONE) {
-                            app.getStatusBar().hideProgressBar();
-                        }
-                    } else if (evt.getPropertyName().equals("progress")) {
-                        app.getStatusBar().showProgressBar();
+            this.addPropertyChangeListener(evt -> {
+                if (evt.getPropertyName().equals("state")) {
+                    if (evt.getNewValue() == StateValue.DONE) {
+                        app.getStatusBar().hideProgressBar();
                     }
+                } else if (evt.getPropertyName().equals("progress")) {
+                    app.getStatusBar().showProgressBar();
                 }
             });
 
         }
 
         @Override
-        protected Void doInBackground() throws Exception {
+        protected Void doInBackground() {
             try {
                 app.getStatusBar().showProgressBar();
                 if (newZoomLevel < 0) {
@@ -201,7 +187,7 @@ public class GraphPanel extends JSplitPane  {
         private GraphController graphController;
 
 
-        public CreateGraphWorker(GraphController graphController) {
+        CreateGraphWorker(GraphController graphController) {
             this.graphController = graphController;
             this.addPropertyChangeListener(evt -> {
                 if (evt.getPropertyName().equals("state")) {
@@ -217,21 +203,18 @@ public class GraphPanel extends JSplitPane  {
 
 
         @Override
-        protected Void doInBackground() throws Exception {
+        protected Void doInBackground() {
             try {
                 graphController.createNewGraph();
                 visualizeGraph();
                 graphController.generateGraph();
 //                while (loop) {
-                    SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
+                    SwingUtilities.invokeLater(() -> {
 
-                            try {
-                                graphController.getLayout().compute();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+                        try {
+                            graphController.getLayout().compute();
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     });
 //                }
@@ -246,13 +229,13 @@ public class GraphPanel extends JSplitPane  {
 
 
     public void refreshLayout(){
-        graphStreamViewer.enableAutoLayout();
+        graphController.getGraphStreamViewer().enableAutoLayout();
     }
     /**
      * Takes the virtual (GraphStream) graph and shows it in the panel.
      */
     private void visualizeGraph() {
-        graphController.visualize(zoomLevel);
+        graphController.visualize((double)zoomLevel/10);
 
         graphPane.setViewportView(graphController.getGraphStreamViewer().getDefaultView());
         graphPane.getHorizontalScrollBar().setValue(graphPane.getHorizontalScrollBar().getValue());
@@ -296,21 +279,14 @@ public class GraphPanel extends JSplitPane  {
         //Node Details
         nodeDetailsPanel.removeAll();
         nodeDetailsPanel.add(new JLabel(" Node : " + graphNode.getName()));
-        graphNode.getProperties().forEach((key,value) ->{
-            nodeDetailsPanel.add(new JLabel(key + " : " + value));
-        });
+        graphNode.getProperties().forEach((key,value) -> nodeDetailsPanel.add(new JLabel(key + " : " + value)));
 
         //incoming edges
         inEdgePanel.removeAll();
-        node.getEachEnteringEdge().forEach(edge -> {
-            getEdgeDetails(inEdgePanel, edge, graphData);
-        });
+        node.getEachEnteringEdge().forEach(edge -> getEdgeDetails(inEdgePanel, edge, graphData));
 
         outEdgePanel.removeAll();
-        node.getEachLeavingEdge().forEach(edge -> {
-            getEdgeDetails(outEdgePanel, edge, graphData);
-
-        });
+        node.getEachLeavingEdge().forEach(edge -> getEdgeDetails(outEdgePanel, edge, graphData));
         StatusUtils.getInstance(app).setInfoStatus("Selected node: " + node.getId());
     }
 
