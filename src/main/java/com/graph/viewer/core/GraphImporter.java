@@ -92,17 +92,36 @@ public class GraphImporter {
                         if(source != null && target != null){
                             String name = p[0] + "-" + p[1];
                             GraphEdge edge = data.getEdges().get(name);
+                            //check whether edge already exists
                             if(edge == null){
-                                edge = new GraphEdge(name);
-                                edge.setSource(source);
-                                edge.setTarget(target);
 
-                                data.getEdges().put(edge.getName(), edge);
-                                for(int i=2;i<p.length;i++){
-                                    edge.addProperty(properties.get(i), p[i]);
+                                //check reverse edge with same author
+                                String revName = target.getName() + "-" + source.getName();
+                                boolean addEdge = true;
+                                if(data.getEdges().get(revName) != null){
+                                    GraphEdge revEdge = data.getEdges().get(revName);
+
+                                    if(revEdge.getProperties().get(properties.get(2)).equals(p[2])){
+
+//                                        System.out.println(" reverse edge exists" + count + "   "  );
+//                                        System.out.println(p[2]);
+//                                        addEdge = false;
+                                    }
+                                }
+                                if(addEdge){
+
+                                    edge = new GraphEdge(name);
+                                    edge.setSource(source);
+                                    edge.setTarget(target);
+
+                                    data.getEdges().put(edge.getName(), edge);
+                                    for(int i=2;i<p.length;i++){
+                                        edge.addProperty(properties.get(i), p[i]);
+                                    }
                                 }
                             }
                             else{
+//                                System.out.println(" Edge already exists. ");
                                 for(int i=2;i<p.length;i++){
                                     edge.appendProperty(properties.get(i), p[i]);
                                 }
@@ -110,7 +129,7 @@ public class GraphImporter {
                         }
 
                     });
-
+//                    System.out.println( " Total number of Edges: " + data.getEdges().size());
                     br.close();
 
                 }catch(IOException ex){
