@@ -70,7 +70,7 @@ public class GraphController implements ViewerListener{
 
             if(graphData.getEdges() != null){
                 for (GraphEdge graphEdge:graphData.getEdges().values()) {
-                    Edge edge = graph.addEdge(graphEdge.getName(),graphEdge.getSource().getName(), graphEdge.getTarget().getName());
+                    Edge edge = graph.addEdge(graphEdge.getName(),graphEdge.getSource().getName(), graphEdge.getTarget().getName(),true);
                     if(edge != null){
                     StringBuilder edgeProp = new StringBuilder();
                     if(graphEdge.getProperties() != null &&  graphEdge.getProperties().size() > 0){
@@ -166,18 +166,20 @@ public class GraphController implements ViewerListener{
         graphStreamViewer.addView(viewPanel);
         //        viewPanel = graphStreamViewer.addDefaultView(false);
         viewPanel.addMouseListener(new GraphMouseListener());
-        viewPanel.setMinimumSize(viewSize);
+//        viewPanel.setMinimumSize(new Dimension(1000,1000));
         viewPanel.setPreferredSize(viewSize);
         viewPanel.setMaximumSize(viewSize);
 //        viewPanel.setEnabled(false);
+        viewPanel.getCamera().setAutoFitView(true);
         viewPanel.getCamera().setViewPercent(zoomLevel);
         viewPanel.getCamera().setViewCenter(0,0,0);
 
         viewerPipe = graphStreamViewer.newViewerPipe();
         viewerPipe.addViewerListener(this);
         viewerPipe.addSink(graph);
+//        viewPanel.resizeFrame(1500,1000);
 //        viewPanel.setMouseManager(new GraphMouseManager(viewerPipe));
-
+//        System.out.println(viewPanel.getCamera().getMetrics().getSize());
     }
 
     public ViewerPipe getViewerPipe() {
@@ -229,6 +231,7 @@ public class GraphController implements ViewerListener{
             System.out.println(" mouse mousePressed");
             try{
                 graphStreamViewer.getDefaultView().requestFocus();
+                System.out.println(graphStreamViewer.getDefaultView().getSize());
                 viewerPipe.pump();
             }
             catch (Exception ex){
@@ -273,75 +276,6 @@ public class GraphController implements ViewerListener{
         }
     }
 
-//    public Viewer generateGraph(Graph graph){
-//        try{
-//            Graph graph = createNewGraph();
-//            if(graph != null){
-//                graphstreamViewer = new Viewer(graph,
-//                        Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
-//                graphstreamViewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
-//                graphstreamViewer.enableAutoLayout();
-//            }
-//
-//
-////            Viewer viewer = graph.display();
-//
-//
-//
-//
-//
-//            ViewPanel viewPanel= graphstreamViewer.addDefaultView(false);
-//
-//            viewPanel.addMouseListener(this);
-//            System.out.println("size is :: " + viewPanel.getSize());
-//            viewPanel.setSize(1200, 1000);
-//            viewPanel.getCamera().setViewCenter(0,0,0);
-//
-//            viewerPipe = graphstreamViewer.newViewerPipe();
-//            viewerPipe.addViewerListener(this);
-//
-////            graphstreamView.getCamera().setViewPercent(0.5);
-//            viewerPipe.addSink(graph);
-//
-//            System.out.println(graphstreamViewer.getView("graph1"));
-////            viewerPipe.pump();
-//
-//
-////            graphstreamView.getCamera().setViewPercent(0.5);
-////            Panel panel = new Panel(new BorderLayout()) {
-////                public void update(java.awt.Graphics g) {
-////                    /* Do not erase the background */
-////                    paint(g);
-////                }
-////                @Override
-////                public Dimension getPreferredSize() {
-////                    return new Dimension(1200, 1000);
-////                }
-////            };
-//
-////            JRootPane root = new JRootPane();
-//
-////            root.setSize(1200, 1000);
-////            panel.add(root);
-////            panel.setBackground(Color.cyan);
-////            panel.setSize(1200, 1000);
-////            root.getContentPane().add(graphstreamView);
-//
-////            frame.add(graphstreamView);
-////            frame.setSize(1200,1000);
-////            frame.pack();
-////            frame.setVisible(true);
-//            return graphstreamViewer;
-//        }
-//        catch (Exception e){
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-
-//    public Viewer getGraphstreamViewer() {
-//        return graphstreamViewer;
-//    }
 
 
 
