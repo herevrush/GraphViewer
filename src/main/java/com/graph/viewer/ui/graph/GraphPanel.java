@@ -47,7 +47,7 @@ public class GraphPanel extends JSplitPane  {
 
     private int zoomLevel = 0;
 
-
+    private Node selectedNode;
 
     private GraphController graphController;
 
@@ -240,7 +240,12 @@ public class GraphPanel extends JSplitPane  {
     private void visualizeGraph() {
         graphController.visualize((double)zoomLevel/10);
 
-        graphPane.setViewportView(graphController.getGraphStreamViewer().getDefaultView());
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+        panel.add(graphController.getGraphStreamViewer().getDefaultView(), "Center");
+        panel.setSize(2500, 2500);
+        graphPane.setViewportView(panel);
+
         graphPane.getHorizontalScrollBar().setValue(graphPane.getHorizontalScrollBar().getValue());
 
         app.revalidate();
@@ -275,6 +280,7 @@ public class GraphPanel extends JSplitPane  {
 
 
     public void updateInfo(Node node, GraphData graphData){
+        this.selectedNode = node;
         GraphNode graphNode = graphData.getNodes().get(graphData.getSelectedNode());
         //add data to infopane
 
@@ -286,10 +292,22 @@ public class GraphPanel extends JSplitPane  {
 
         //incoming edges
         inEdgePanel.removeAll();
-        node.getEachEnteringEdge().forEach(edge -> getEdgeDetails(inEdgePanel, edge, graphData));
+        node.getEachEnteringEdge().forEach(edge -> {
+            String edgeId = edge.getId();
+            GraphEdge e = graphData.getEdges().get(edgeId);
+            e.getProperties().forEach((key, value) -> {
+                inEdgePanel.add (new JLabel(edge.getSourceNode().getId() + " " + key + " : " + value));
+            });
+        });
 
         outEdgePanel.removeAll();
-        node.getEachLeavingEdge().forEach(edge -> getEdgeDetails(outEdgePanel, edge, graphData));
+        node.getEachLeavingEdge().forEach(edge -> {
+            String edgeId = edge.getId();
+            GraphEdge e = graphData.getEdges().get(edgeId);
+            e.getProperties().forEach((key, value) -> {
+                outEdgePanel.add (new JLabel(edge.getTargetNode().getId() + " " + key + " : " + value));
+            });
+        });
         StatusUtils.getInstance(app).setInfoStatus("Selected node: " + node.getId());
     }
 
@@ -300,41 +318,16 @@ public class GraphPanel extends JSplitPane  {
         applyZoomLevel(zoomLevel - 1);
     }
 
-    private void getEdgeDetails(JPanel panel, Edge edge, GraphData graphData) {
-//        System.out.println( " Edge == " + edge.getId());
-        String edgeId = edge.getId();
-        GraphEdge e = graphData.getEdges().get(edgeId);
-        e.getProperties().forEach((key, value) -> {
-            panel.add (new JLabel(edge.getSourceNode().getId() + " " + key + " : " + value));
-        });
-    }
+//    private void getEdgeDetails(JPanel panel, Edge edge, GraphData graphData) {
+////        System.out.println( " Edge == " + edge.getId());
+//        String edgeId = edge.getId();
+//        GraphEdge e = graphData.getEdges().get(edgeId);
+//        e.getProperties().forEach((key, value) -> {
+//            panel.add (new JLabel(edge.getSourceNode().getId() + " " + key + " : " + value));
+//        });
+//    }
 
-//    @Override
-//    public void viewClosed(String s) {
-//        loop = false;
-//        graphStreamViewer.getDefaultView().removeMouseListener(new GraphMouseListener());
-//    }
-//
-//    @Override
-//    public void buttonPushed(String s) {
-//
-//        System.out.println("Button pushed on node " + s);
-//        Node node = graphController.getGraph().getNode(s);
-//        if(node != null){
-//            node.addAttribute("layout.frozen", new Object[0]);
-//            setSelectedNode(graphController.getGraph().getNode(s));
-//        }
-//
-//    }
-//
-//    @Override
-//    public void buttonReleased(String s) {
-//        System.out.println(" Button released" + s);
-//        Node node = graphController.getGraph().getNode(s);
-//        if(node != null){
-//            node.removeAttribute("layout.frozen");
-//        }
-//    }
+
 
 
     final class GraphScrollListener implements AdjustmentListener {
@@ -356,52 +349,6 @@ public class GraphPanel extends JSplitPane  {
 
     }
 
-//    class GraphMouseListener implements MouseInputListener{
-//
-//        @Override
-//        public void mouseClicked(MouseEvent e) {
-////            System.out.println(" mouse mouseClicked");
-////            viewerPipe.pump();
-//
-//        }
-//
-//        @Override
-//        public void mousePressed(MouseEvent e) {
-//        System.out.println(" mouse mousePressed");
-//            graphStreamViewer.getDefaultView().requestFocus();
-//            viewerPipe.pump();
-//        }
-//
-//        @Override
-//        public void mouseReleased(MouseEvent e) {
-//            System.out.println(" mouse released");
-//            graphStreamViewer.getDefaultView().requestFocus();
-//            viewerPipe.pump();
-//
-//        }
-//
-//        @Override
-//        public void mouseEntered(MouseEvent e) {
-////        System.out.println(" mouse mouseEntered");
-//
-//        }
-//
-//        @Override
-//        public void mouseExited(MouseEvent e) {
-//
-//        }
-//
-//        @Override
-//        public void mouseDragged(MouseEvent e) {
-////            System.out.println(" mouse mouseDragged");
-//
-//        }
-//
-//        @Override
-//        public void mouseMoved(MouseEvent e) {
-////            System.out.println(" mouse mouseMoved");
-//
-//        }
-//    }
+
 
 }
