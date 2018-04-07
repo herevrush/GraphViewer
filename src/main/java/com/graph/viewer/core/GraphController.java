@@ -6,6 +6,7 @@ import com.graph.viewer.model.GraphEdge;
 import com.graph.viewer.model.GraphNode;
 import com.graph.viewer.ui.graph.GraphPanel;
 import com.graph.viewer.utils.StatusUtils;
+import org.graphstream.algorithm.Toolkit;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -20,6 +21,8 @@ import org.graphstream.ui.view.ViewerPipe;
 
 import javax.swing.event.MouseInputListener;
 import java.awt.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 
 
@@ -57,7 +60,7 @@ public class GraphController implements ViewerListener{
         return graphData;
     }
 
-    public Graph generateGraph(){
+    public void generateGraph(){
         try{
             if(graphData.getNodes() != null){
                 for (GraphNode n:graphData.getNodes().values()) {
@@ -89,13 +92,13 @@ public class GraphController implements ViewerListener{
                 }
 
             }
-            return graph;
+//            return graph;
         }
         catch(Exception e){
             System.out.println(" could not generateGraph");
             e.printStackTrace();
         }
-        return null;
+//        return null;
     }
     private void setSelectedNode(final Node newSelectedNode) {
 
@@ -149,7 +152,7 @@ public class GraphController implements ViewerListener{
 
     public void visualize(double zoomLevel){
         graphStreamViewer = new Viewer(graph,
-                Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
+                Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
         graphStreamViewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
 //        graphStreamViewer.enableAutoLayout();
 
@@ -202,8 +205,13 @@ public class GraphController implements ViewerListener{
         System.out.println("Button pushed on node " + s);
         Node node = graph.getNode(s);
         if(node != null){
-            node.addAttribute("layout.frozen", new Object[0]);
+//            ((DefaultView)graphStreamViewer.getDefaultView()).freezeElement(node);
+            double[] xyz = Toolkit.nodePosition(graph, node.getId());
+            graphStreamViewer.getDefaultView().getCamera().setViewCenter(xyz[0],xyz[1],xyz[2]);
+//            ((DefaultView)graphStreamViewer.getDefaultView()).(xyz[0],);
+//            node.addAttribute("layout.frozen", new Object[0]);
             setSelectedNode(graph.getNode(s));
+
         }
 
     }
@@ -217,6 +225,32 @@ public class GraphController implements ViewerListener{
         }
     }
 
+//    public void componentHidden(ComponentEvent e) {
+//        if(this.graphStreamViewer != null){
+//            this.graphStreamViewer.getDefaultView().repaint();
+//        }
+//
+//    }
+//
+//    public void componentMoved(ComponentEvent e) {
+//        if(this.graphStreamViewer != null){
+//            this.graphStreamViewer.getDefaultView().repaint();
+//        }
+//    }
+//
+//    public void componentResized(ComponentEvent e) {
+//        if(this.graphStreamViewer != null){
+//            this.graphStreamViewer.getDefaultView().repaint();
+//        }
+//
+//    }
+//
+//    public void componentShown(ComponentEvent e) {
+//        if(this.graphStreamViewer != null){
+//            this.graphStreamViewer.getDefaultView().repaint();
+//        }
+//    }
+
     class GraphMouseListener implements MouseInputListener{
 
         @Override
@@ -228,10 +262,10 @@ public class GraphController implements ViewerListener{
 
         @Override
         public void mousePressed(MouseEvent e) {
-            System.out.println(" mouse mousePressed");
+//            System.out.println(" mouse mousePressed");
             try{
                 graphStreamViewer.getDefaultView().requestFocus();
-                System.out.println(graphStreamViewer.getDefaultView().getSize());
+//                System.out.println(graphStreamViewer.getDefaultView().getSize());
                 viewerPipe.pump();
             }
             catch (Exception ex){
@@ -241,7 +275,7 @@ public class GraphController implements ViewerListener{
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            System.out.println(" mouse released");
+//            System.out.println(" mouse released");
             try{
                 graphStreamViewer.getDefaultView().requestFocus();
                 viewerPipe.pump();

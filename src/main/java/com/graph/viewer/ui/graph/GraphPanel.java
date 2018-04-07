@@ -8,6 +8,7 @@ import com.graph.viewer.ui.GraphViewer;
 import com.graph.viewer.utils.StatusUtils;
 
 import com.graph.viewer.model.GraphNode;
+import org.graphstream.algorithm.Toolkit;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -172,7 +173,7 @@ public class GraphPanel extends JSplitPane  {
                     zoomLevel = newZoomLevel;
                     visualizeGraph();
                     StatusUtils.getInstance(app).setInfoStatus("Zoom level set to: " + zoomLevel);
-                    app.getToolBar().hideProgressBar();
+//                    Thread.sleep(10000);
                 }
 
             } catch (Exception e) {
@@ -182,6 +183,11 @@ public class GraphPanel extends JSplitPane  {
             return null;
         }
 
+        @Override
+        protected void done() {
+            app.getToolBar().hideProgressBar();
+            super.done();
+        }
     }
     class CreateGraphWorker extends SwingWorker<Void, Void> {
 
@@ -214,8 +220,8 @@ public class GraphPanel extends JSplitPane  {
 
                         try {
                             graphController.getLayout().compute();
-                            Thread.sleep(10000);
-                            app.getToolBar().hideProgressBar();
+//                            Thread.sleep(10000);
+//                            app.getToolBar().hideProgressBar();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -228,10 +234,33 @@ public class GraphPanel extends JSplitPane  {
             }
             return null;
         }
+
+        @Override
+        protected void done() {
+            super.done();
+            SwingUtilities.invokeLater(() -> {
+
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                app.getToolBar().hideProgressBar();
+            });
+
+        }
     }
 
 
     public void refreshLayout(){
+        graphController.getGraphStreamViewer().getDefaultView().setVisible(false);
+        graphController.getGraphStreamViewer().getDefaultView().setSize(1000,1000);
+//        this.graphPane.repaint();
+        graphController.getGraphStreamViewer().getDefaultView().setVisible(true);
+//        this.graphPane.getViewport().repaint();
+
+//        System.out.println(" layout == " + System.getProperty("gs.ui.layout"));
+//        System.out.println(" layout == " + System.getProperty("org.graphstream.ui.layout"));
         graphController.getGraphStreamViewer().enableAutoLayout();
     }
     /**

@@ -13,6 +13,7 @@ import org.graphstream.graph.Graph;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.util.concurrent.Executor;
 
 /**
  * The main tool bar.
@@ -66,10 +67,13 @@ public class GraphToolBar extends JToolBar {
 		JButton graph = createNewButton(" Generate Graph", event ->{
 			try {
 				showProgressBar();
-				app.getGraphPanel().loadGraph();
-				int zoomLevel= app.getGraphPanel().getZoomLevel();
-				zoomLevelLabel.setText(String.valueOf(zoomLevel));
-				StatusUtils.getInstance(app).setInfoStatus(" Generating Graph ........ " );
+				Executor executor = java.util.concurrent.Executors.newSingleThreadExecutor();
+				executor.execute(new Runnable() { public void run() {
+					app.getGraphPanel().loadGraph();
+					int zoomLevel= app.getGraphPanel().getZoomLevel();
+					zoomLevelLabel.setText(String.valueOf(zoomLevel));
+					StatusUtils.getInstance(app).setInfoStatus(" Generating Graph ........ " );
+				}});
 
 //				SwingUtilities.invokeLater(() -> {
 //					while (true){
@@ -91,15 +95,14 @@ public class GraphToolBar extends JToolBar {
 		JButton zoomIn = createNewButton(" Zoom In ", event ->{
 			try {
 				showProgressBar();
-			StatusUtils.getInstance(app).setInfoStatus(" Zooming In........ " );
-			ZoomInWorker worker = new ZoomInWorker(app.getGraphPanel().getGraphController());
-				try {
-					worker.execute();
-					worker.get();
-				} catch (Exception e1) {
-					e1.printStackTrace();
+				Executor executor = java.util.concurrent.Executors.newSingleThreadExecutor();
+				executor.execute(new Runnable() { public void run() {
+					StatusUtils.getInstance(app).setInfoStatus(" Zooming In........ " );
+					app.getGraphPanel().zoomIn();//loadGraph();
+					int zoomLevel= app.getGraphPanel().getZoomLevel();
+					zoomLevelLabel.setText(String.valueOf(zoomLevel));
+				}});
 
-				}
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
@@ -108,22 +111,34 @@ public class GraphToolBar extends JToolBar {
 		JButton zoomOut = createNewButton(" Zoom Out ", event ->{
 			try {
 				showProgressBar();
-				StatusUtils.getInstance(app).setInfoStatus(" Zooming out........ " );
-				app.getGraphPanel().zoomOut();//loadGraph();
-				int zoomLevel= app.getGraphPanel().getZoomLevel();
-				zoomLevelLabel.setText(String.valueOf(zoomLevel));
+				Executor executor = java.util.concurrent.Executors.newSingleThreadExecutor();
+				executor.execute(new Runnable() { public void run() {
+					StatusUtils.getInstance(app).setInfoStatus(" Zooming out........ " );
+					app.getGraphPanel().zoomOut();//loadGraph();
+					int zoomLevel= app.getGraphPanel().getZoomLevel();
+					zoomLevelLabel.setText(String.valueOf(zoomLevel));
+				}});
+
+
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
 		}, " Zoom Out Graph",new ImageIcon("images/magnifier--minus.png"));
 
 		JButton layoutBtn = createNewButton(" Beautify Graph", event ->{
-			try {
-				app.getGraphPanel().refreshLayout();
+			Executor executor = java.util.concurrent.Executors.newSingleThreadExecutor();
+			executor.execute(new Runnable() { public void run() {
+				StatusUtils.getInstance(app).setInfoStatus(" Analyzing Graph........ " );
+				AnalyzeGraphWorker worker = new AnalyzeGraphWorker(app.getGraphPanel().getGraphController());
+				try {
+					worker.execute();
+					worker.get();
+				} catch (Exception e1) {
+					e1.printStackTrace();
 
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
+				}
+			}});
+
 		}, " Beautify Graph",null);
 
 		jProgressBar = new JProgressBar();
@@ -186,41 +201,76 @@ public class GraphToolBar extends JToolBar {
 //		repaint();
 	}
 
-	class ZoomInWorker extends SwingWorker<Graph, Void> {
+//	class ZoomInWorker extends SwingWorker<Graph, Void> {
+//
+//		private GraphController graphController;
+//
+//
+//		public ZoomInWorker(GraphController graphController) {
+//			this.graphController = graphController;
+////			this.addPropertyChangeListener(new PropertyChangeListener() {
+////				@Override
+////				public void propertyChange(final PropertyChangeEvent evt) {
+////					if (evt.getPropertyName().equals("state")) {
+////						if (evt.getNewValue() == SwingWorker.StateValue.DONE) {
+////							pd.end();
+////						}
+////					} else if (evt.getPropertyName().equals("progress")) {
+////						pd.repaint();
+////					}
+////				}
+////			});
+//
+//		}
+//
+//		@Override
+//		protected Graph doInBackground() throws Exception {
+//			try {
+////				showProgressBar();
+//				app.getGraphPanel().zoomIn();//loadGraph();
+//				int zoomLevel= app.getGraphPanel().getZoomLevel();
+//				zoomLevelLabel.setText(String.valueOf(zoomLevel));
+////				hideProgressBar();
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//				StatusUtils.getInstance(app).setErrorStatus(e.getMessage());
+//			}
+//			return null;
+//		}
+//	}
+
+	class AnalyzeGraphWorker extends SwingWorker<Graph, Void> {
 
 		private GraphController graphController;
 
 
-		public ZoomInWorker(GraphController graphController) {
+		public AnalyzeGraphWorker(GraphController graphController) {
 			this.graphController = graphController;
-//			this.addPropertyChangeListener(new PropertyChangeListener() {
-//				@Override
-//				public void propertyChange(final PropertyChangeEvent evt) {
-//					if (evt.getPropertyName().equals("state")) {
-//						if (evt.getNewValue() == SwingWorker.StateValue.DONE) {
-//							pd.end();
-//						}
-//					} else if (evt.getPropertyName().equals("progress")) {
-//						pd.repaint();
-//					}
-//				}
-//			});
-
 		}
 
 		@Override
 		protected Graph doInBackground() throws Exception {
 			try {
-//				showProgressBar();
-				app.getGraphPanel().zoomIn();//loadGraph();
-				int zoomLevel= app.getGraphPanel().getZoomLevel();
-				zoomLevelLabel.setText(String.valueOf(zoomLevel));
-//				hideProgressBar();
+				showProgressBar();
+				try {
+					app.getGraphPanel().refreshLayout();
+
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+
+
 			} catch (Exception e) {
 				e.printStackTrace();
 				StatusUtils.getInstance(app).setErrorStatus(e.getMessage());
 			}
 			return null;
+		}
+
+		@Override
+		protected void done() {
+			super.done();
+			hideProgressBar();
 		}
 	}
 
