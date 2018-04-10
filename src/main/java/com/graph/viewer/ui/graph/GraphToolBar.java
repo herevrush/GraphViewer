@@ -13,7 +13,10 @@ import org.graphstream.graph.Graph;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 /**
  * The main tool bar.
@@ -67,14 +70,12 @@ public class GraphToolBar extends JToolBar {
 		JButton graph = createNewButton(" Generate Graph", event ->{
 			try {
 				showProgressBar();
-				Executor executor = java.util.concurrent.Executors.newSingleThreadExecutor();
-				executor.execute(new Runnable() { public void run() {
+				ExecutorService executor = java.util.concurrent.Executors.newSingleThreadExecutor();
+				executor.execute( () ->{
 					app.getGraphPanel().loadGraph();
 					int zoomLevel= app.getGraphPanel().getZoomLevel();
 					zoomLevelLabel.setText(String.valueOf(zoomLevel));
 					StatusUtils.getInstance(app).setInfoStatus(" Generating Graph ........ " );
-				}});
-
 //				SwingUtilities.invokeLater(() -> {
 //					while (true){
 //						System.out.println( " true" + app.getGraphPanel().getGraphController().getGraphStreamViewer().getDefaultView().requestFocus(true));
@@ -85,6 +86,8 @@ public class GraphToolBar extends JToolBar {
 //						}
 //					}
 //				});
+				});
+
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
@@ -127,18 +130,18 @@ public class GraphToolBar extends JToolBar {
 
 		JButton layoutBtn = createNewButton(" Beautify Graph", event ->{
 			Executor executor = java.util.concurrent.Executors.newSingleThreadExecutor();
-			executor.execute(new Runnable() { public void run() {
+			executor.execute( ()-> {
 				StatusUtils.getInstance(app).setInfoStatus(" Analyzing Graph........ " );
 				AnalyzeGraphWorker worker = new AnalyzeGraphWorker(app.getGraphPanel().getGraphController());
 				try {
 					worker.execute();
 					worker.get();
+					System.out.println(worker.getProgress());
 				} catch (Exception e1) {
 					e1.printStackTrace();
 
 				}
-			}});
-
+			});
 		}, " Beautify Graph",null);
 
 		jProgressBar = new JProgressBar();

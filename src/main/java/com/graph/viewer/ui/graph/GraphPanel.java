@@ -8,6 +8,7 @@ import com.graph.viewer.ui.GraphViewer;
 import com.graph.viewer.utils.StatusUtils;
 
 import com.graph.viewer.model.GraphNode;
+import com.lowagie.text.ListItem;
 import org.graphstream.algorithm.Toolkit;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -124,14 +125,30 @@ public class GraphPanel extends JSplitPane  {
         boolean ret = true;
         zoomLevel = 6;
 
-//        app.getStatusBar().showProgressBar();
-        CreateGraphWorker worker = new CreateGraphWorker(graphController);
         try {
-            worker.execute();
-            worker.get();
-        } catch (Exception e1) {
-            ret = false;
+            graphController.createNewGraph();
+            visualizeGraph();
+            graphController.generateGraph();
+            try {
+                graphController.getLayout().compute();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            app.getToolBar().hideProgressBar();
+        } catch (Exception e) {
+            e.printStackTrace();
+            StatusUtils.getInstance(app).setErrorStatus(e.getMessage());
         }
+
+//        app.getStatusBar().showProgressBar();
+//        CreateGraphWorker worker = new CreateGraphWorker(graphController);
+//        try {
+//            worker.execute();
+//            worker.get();
+//
+//        } catch (Exception e1) {
+//            ret = false;
+//        }
 //        app.getStatusBar().hideProgressBar();
         return ret;
     }
@@ -202,6 +219,7 @@ public class GraphPanel extends JSplitPane  {
 //                        app.getStatusBar().hideProgressBar();
                     }
                 } else if (evt.getPropertyName().equals("progress")) {
+                    System.out.println(evt.getNewValue() + " " + this.getProgress());
 //                    app.getToolBar().showProgressBar();
                 }
             });
@@ -316,8 +334,17 @@ public class GraphPanel extends JSplitPane  {
 
         //Node Details
         nodeDetailsPanel.removeAll();
+//        DefaultListModel<String> list = new DefaultListModel<>();
+
+
+//        list.setSize(200);
+//        list.addElement(" Node : " + graphNode.getName());
         nodeDetailsPanel.add(new JLabel(" Node : " + graphNode.getName()));
         graphNode.getProperties().forEach((key,value) -> nodeDetailsPanel.add(new JLabel(key + " : " + value)));
+//        graphNode.getProperties().forEach((key,value) -> list.addElement(key + " : " + value));
+//        JList jList = new JList<>(list);
+//        nodeDetailsPanel.add(jList);
+//        jList.setVisibleRowCount(-1);
 
         //incoming edges
         inEdgePanel.removeAll();
